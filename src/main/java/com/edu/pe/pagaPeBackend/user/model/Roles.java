@@ -1,0 +1,1 @@
+package com.edu.pe.pagaPeBackend.user.model;public enum Roles {    ADMIN,    WORKER}

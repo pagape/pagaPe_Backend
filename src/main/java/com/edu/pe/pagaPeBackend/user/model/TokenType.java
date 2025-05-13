@@ -1,0 +1,1 @@
+package com.edu.pe.pagaPeBackend.user.model;public enum TokenType {    BEARER}

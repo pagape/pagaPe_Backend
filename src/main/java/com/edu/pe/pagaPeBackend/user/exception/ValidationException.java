@@ -1,0 +1,1 @@
+package com.edu.pe.pagaPeBackend.user.exception;public class ValidationException extends RuntimeException {    public ValidationException() {        super();    }    public ValidationException(String message) {        super(message);    }}

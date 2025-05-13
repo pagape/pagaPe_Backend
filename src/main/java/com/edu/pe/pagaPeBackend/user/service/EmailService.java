@@ -1,0 +1,1 @@
+package com.edu.pe.pagaPeBackend.user.service;public interface EmailService {    void enviarCodigoRecuperacion(String destino, String codigo);}
