@@ -27,8 +27,8 @@
 		<url/>
 	</scm>
 	<properties>
-		<java.version>22</java.version>
-		<maven.compiler.release>22</maven.compiler.release>
+		<java.version>21</java.version>
+		<maven.compiler.release>21</maven.compiler.release>
 	</properties>
 	<dependencies>
 
@@ -126,8 +126,8 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>22</source> <!-- Cambia a la versión de Java que estás usando -->
-					<target>22</target> <!-- Cambia a la versión de Java que estás usando -->
+					<source>21</source> <!-- Cambia a la versión de Java que estás usando -->
+					<target>21</target> <!-- Cambia a la versión de Java que estás usando -->
 					<annotationProcessorPaths>
 						<path>
 							<groupId>org.projectlombok</groupId>
