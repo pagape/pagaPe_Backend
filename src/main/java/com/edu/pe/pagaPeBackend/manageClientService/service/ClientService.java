@@ -13,7 +13,7 @@ public interface ClientService {
     public abstract Client createClientService(ClientRequest request);
     public abstract Client getClientById(Long id);
 
-    public abstract Client updateClient(Long id, Client client, String updatedBy);
+    public abstract Client updateClient(Long id, ClientRequest request, String updatedBy);
     public abstract void deleteClient(Long id);
     
     /**

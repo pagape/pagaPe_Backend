@@ -1,5 +1,6 @@
 package com.edu.pe.pagaPeBackend.manageClientService.service.Impl;
 
+import com.edu.pe.pagaPeBackend.manageClientService.dto.ClientMapper;
 import com.edu.pe.pagaPeBackend.manageClientService.dto.ClientModificationMapper;
 import com.edu.pe.pagaPeBackend.manageClientService.dto.client.ClientHistoryResponse;
 import com.edu.pe.pagaPeBackend.manageClientService.dto.client.ClientRequest;
@@ -53,14 +54,8 @@ public class ClientServiceImpl implements ClientService {
             throw new DuplicateClientPhoneException("Ya existe un cliente con el número de teléfono: " + request.getUserPhone());
         }
 
-        // Crear el cliente
-        Client newClient = Client.builder()
-                .userFirstName(request.getUserFirstName())
-                .userLastName(request.getUserLastName())
-                .userEmail(request.getUserEmail())
-                .userPhone(request.getUserPhone())
-                .createdAt(LocalDateTime.now())
-                .build();
+        // Crear el cliente utilizando el mapper para incluir todos los campos
+        Client newClient = ClientMapper.toClient(request);
 
         // Guardar el cliente
         Client savedClient = repository.save(newClient);
@@ -86,13 +81,13 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public Client updateClient(Long id, Client userRequest, String updatedBy) {
+    public Client updateClient(Long id, ClientRequest userRequest, String updatedBy) {
         // Obtener el cliente existente
         Client clienteExistente = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
         
         // Validar datos actualizados
-        validateUpdatedClientData(userRequest);
+        // validateUpdatedClientData(userRequest);
         
         // Validar que no exista otro cliente con el mismo número de teléfono
         if (userRequest.getUserPhone() != null && !userRequest.getUserPhone().isEmpty()) {
@@ -138,6 +133,48 @@ public class ClientServiceImpl implements ClientService {
             }
             clienteExistente.setUserPhone(userRequest.getUserPhone());
         }
+        
+        // Actualizar los nuevos campos
+        if (userRequest.getAmount() != null) {
+            if (!userRequest.getAmount().equals(clienteExistente.getAmount())) {
+                changesDetails.append("monto, ");
+                hasChanges = true;
+            }
+            clienteExistente.setAmount(userRequest.getAmount());
+        }
+        
+        if (userRequest.getIssueDate() != null) {
+            if (!userRequest.getIssueDate().equals(clienteExistente.getIssueDate())) {
+                changesDetails.append("fecha de emisión, ");
+                hasChanges = true;
+            }
+            clienteExistente.setIssueDate(userRequest.getIssueDate());
+        }
+        
+        if (userRequest.getDueDate() != null) {
+            if (!userRequest.getDueDate().equals(clienteExistente.getDueDate())) {
+                changesDetails.append("fecha de vencimiento, ");
+                hasChanges = true;
+            }
+            clienteExistente.setDueDate(userRequest.getDueDate());
+        }
+        
+        if (userRequest.getEstado() != null) {
+            if (!userRequest.getEstado().equals(clienteExistente.getEstado())) {
+                changesDetails.append("estado, ");
+                hasChanges = true;
+            }
+            clienteExistente.setEstado(userRequest.getEstado());
+        }
+
+        /*
+        if (userRequest.getClientService() != null) {
+            if (!userRequest.getClientService().equals(clienteExistente.getClientService())) {
+                changesDetails.append("servicio, ");
+                hasChanges = true;
+            }
+            clienteExistente.setClientService(userRequest.getClientService());
+        }*/
         
         // Si no hay cambios, no actualizamos
         if (!hasChanges) {
@@ -254,6 +291,27 @@ public class ClientServiceImpl implements ClientService {
         if (request.getUserPhone() != null && !request.getUserPhone().isEmpty() && !isValidPhone(request.getUserPhone())) {
             throw new InvalidDataException("El teléfono debe tener entre 7 y 15 dígitos");
         }
+        
+        // Validar amount
+        if (request.getAmount() == null) {
+            throw new InvalidDataException("El monto es obligatorio");
+        }
+        
+        // Validar issueDate
+        if (request.getIssueDate() == null) {
+            throw new InvalidDataException("La fecha de emisión es obligatoria");
+        }
+        
+        // Validar dueDate
+        if (request.getDueDate() == null) {
+            throw new InvalidDataException("La fecha de vencimiento es obligatoria");
+        }
+        
+        // Validar que dueDate sea posterior a issueDate
+        if (request.getIssueDate() != null && request.getDueDate() != null 
+                && request.getDueDate().isBefore(request.getIssueDate())) {
+            throw new InvalidDataException("La fecha de vencimiento debe ser posterior a la fecha de emisión");
+        }
     }
     
     /**
@@ -293,6 +351,13 @@ public class ClientServiceImpl implements ClientService {
         
         if (client.getUserPhone() != null && !client.getUserPhone().isEmpty() && !isValidPhone(client.getUserPhone())) {
             throw new InvalidDataException("El teléfono debe tener entre 7 y 15 dígitos");
+        }
+        
+        // Validar fecha de emisión y vencimiento
+        if (client.getIssueDate() != null && client.getDueDate() != null) {
+            if (client.getDueDate().isBefore(client.getIssueDate())) {
+                throw new InvalidDataException("La fecha de vencimiento debe ser posterior a la fecha de emisión");
+            }
         }
     }
 }

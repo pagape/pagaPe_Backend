@@ -29,19 +29,23 @@ public class ClientService {
     @JoinColumn(name = "service_id", nullable = false)
     private Service service;
 
-
+    @Column(name = "fecha_inicio")
     private LocalDate fechaInicio;
+    
+    @Column(name = "fecha_fin")
     private LocalDate fechaFin;
-    private State estado;
-
+    
+    @Column(name = "estado")
+    private Byte estado; // tinyint in database
+    
+    @Column(name = "contrato_vigente", nullable = false)
     private boolean contratoVigente;
 
     @OneToMany(mappedBy = "clienteServicio", cascade = CascadeType.ALL)
     private List<Receipt> recibos;
-
-    enum State{
-
-        Activo, Suspendido, Finalizado
-    }
-
+    
+    // Constants for estado values
+    public static final byte ESTADO_ACTIVO = 1;
+    public static final byte ESTADO_SUSPENDIDO = 2;
+    public static final byte ESTADO_CANCELADO = 3;
 }

@@ -3,6 +3,8 @@ package com.edu.pe.pagaPeBackend.manageClientService.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -40,7 +42,28 @@ public class Client {
 
     @Column(name="updated_by", length = 100)
     private String updatedBy;
+    
+    @Column(name="amount", nullable = false, precision = 10, scale = 2)
+    private BigDecimal amount;
+    
+    @Column(name="issue_date", nullable = false)
+    private LocalDate issueDate;
+    
+    @Column(name="due_date", nullable = false)
+    private LocalDate dueDate;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(name="estado")
+    private PaymentStatus estado;
+    
+    @ManyToOne
+    @JoinColumn(name = "client_service_id")
+    private ClientService clientService;
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
     private List<ClientService> serviciosContratados;
+    
+    public enum PaymentStatus {
+        PENDIENTE, PAGADO, VENCIDO
+    }
 }

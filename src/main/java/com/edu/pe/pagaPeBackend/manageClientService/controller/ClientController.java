@@ -88,13 +88,18 @@ public class ClientController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateClient(@PathVariable Long id, @RequestBody Client clientRequest) {
+    public ResponseEntity<?> updateClient(@PathVariable Long id, @RequestBody ClientRequest clientRequest) {
         try {
             // Obtener el nombre de usuario actual
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String currentUsername = authentication.getName();
             
+            // Obtener cliente actual
+            //Client existingClient = clientService.getClientById(id);
+            
+            // Actualizar el cliente usando el mapper
             Client updatedClient = clientService.updateClient(id, clientRequest, currentUsername);
+
             ClientResponse response = ClientMapper.toClientResponse(updatedClient);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (DuplicateClientPhoneException | InvalidDataException e) {
