@@ -1,0 +1,35 @@
+# Archivos y directorios de Git
+.git
+.github
+.gitignore
+.gitattributes
+
+# Directorios de compilación
+target/
+!target/*.jar
+
+# Directorios de IDEs
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+
+# Logs
+logs/
+*.log
+
+# Archivos temporales
+*.tmp
+*.bak
+*.swp
+
+# Archivos de documentación
+README.md
+DEPLOYMENT.md
+LICENSE
+
+# Otros archivos innecesarios para la imagen Docker
+mvnw
+mvnw.cmd
+.mvn/ 
