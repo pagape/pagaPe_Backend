@@ -25,8 +25,16 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.cors().configurationSource(corsConfigurationSource()).and()
                 .authorizeHttpRequests(authorize -> authorize
+                        // Endpoints públicos
                         .requestMatchers("/api/pagaPe/v1/auth/**","/api/pagaPe/v1/auth/login","/api/pagaPe/v1/users/nameAndEmail","/api/excel/**","/api/ai-training/**","/api/sharepoint/**","/api/cosapi/v1/users/**")
                                 .permitAll()
+                        // Swagger UI y OpenAPI
+                        .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**")
+                                .permitAll()
+                        // API de clientes (permitir acceso para pruebas)
+                        .requestMatchers("/api/clients/**")
+                                .permitAll()
+                        // Otros endpoints protegidos
                         .requestMatchers(HttpMethod.GET, "/api/pagaPe/v1/users/me","/api/pagaPe/v1/users/nameAndEmail")
                         .authenticated()
                         .requestMatchers(HttpMethod.POST,"/api/pagaPe/v1/auth/login").hasAnyAuthority("ADMIN")
@@ -54,14 +62,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://localhost:4200"); // Origen del frontend local
-        configuration.addAllowedOrigin("https://pagape-frontend.azurewebsites.net"); // Origen del frontend en Azure
-        configuration.addAllowedOrigin("https://ambitious-water-0d42bc910.6.azurestaticapps.net/"); // Origen del frontend en Azure
-        configuration.addAllowedMethod("*"); // Permitir todos los métodos (GET, POST, PUT, etc.)
-        configuration.addAllowedHeader("*"); // Permitir todos los encabezados
-        configuration.setAllowCredentials(true); // Permitir credenciales (Authorization, Cookies)
+        configuration.addAllowedOrigin("*");
+        configuration.addAllowedMethod("*");
+        configuration.addAllowedHeader("*");
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // Aplicar la configuración a todas las rutas
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 
