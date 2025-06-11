@@ -30,5 +30,12 @@ public class ClientServiceRequest {
     @NotNull
     private LocalDate dueDate;
 
+    private boolean active;
+
+    public boolean getActive(){
+
+        return active;
+    }
+
     private ClientService.PaymentFrequency paymentFrequency;
 }

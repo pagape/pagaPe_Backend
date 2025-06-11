@@ -19,7 +19,7 @@ public class ClientServiceMapper {
                 .dueDate(clientService.getDueDate())
                 .paymentFrequency(clientService.getPaymentFrequency())
                 .amount(clientService.getAmount())
-                .estado(clientService.getEstado())
+                .active(clientService.getActive())
                 .contratoVigente(clientService.getContratoVigente())
                 .build();
     }
@@ -33,7 +33,7 @@ public class ClientServiceMapper {
                 .amount(request.getAmount())
                 .paymentFrequency(request.getPaymentFrequency())
                 .contratoVigente(true)
-                .estado(true)
+                .active(true)
                 .build();
     }
     

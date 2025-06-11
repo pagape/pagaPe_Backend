@@ -31,7 +31,12 @@ public class ClientServiceResponse {
 
     private ClientService.PaymentFrequency paymentFrequency;
 
-    private boolean estado;
+    private boolean active;
+
+    public boolean getActive(){
+
+        return active;
+    }
 
     private boolean contratoVigente;
 }

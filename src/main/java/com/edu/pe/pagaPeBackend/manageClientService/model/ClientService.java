@@ -42,12 +42,16 @@ public class ClientService {
     private PaymentFrequency paymentFrequency = PaymentFrequency.FIN_DE_MES;
 
 
-    @Column(name = "estado", nullable = false)
-    private Boolean estado;
+
+    @Column(nullable = false)
+    private boolean active;
     
     @Column(name = "contrato_vigente", nullable = false)
     private Boolean contratoVigente;
-    
+
+    public boolean getActive() {
+        return active;
+    }
 
 
     public enum PaymentFrequency {
