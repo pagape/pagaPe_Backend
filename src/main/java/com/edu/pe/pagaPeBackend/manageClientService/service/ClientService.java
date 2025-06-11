@@ -14,6 +14,10 @@ public interface ClientService {
 
     public abstract Client updateClient(Long id, ClientRequest request);
     public abstract void deleteClient(Long id);
+
+    public abstract void desactivateClient(Long user_id) ;
+
+    public List<Client> getAllClientsByStatus(boolean status);
     
     /**
      * Obtiene todos los clientes

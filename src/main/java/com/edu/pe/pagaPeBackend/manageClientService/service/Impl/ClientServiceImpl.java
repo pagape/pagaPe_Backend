@@ -8,6 +8,8 @@ import com.edu.pe.pagaPeBackend.manageClientService.exception.InvalidDataExcepti
 import com.edu.pe.pagaPeBackend.manageClientService.model.Client;
 import com.edu.pe.pagaPeBackend.manageClientService.repository.ClientRepository;
 import com.edu.pe.pagaPeBackend.manageClientService.service.ClientService;
+import com.edu.pe.pagaPeBackend.user.model.User;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -140,6 +142,22 @@ public class ClientServiceImpl implements ClientService {
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
         
         repository.deleteById(id);
+    }
+
+    @Override
+    public List<Client> getAllClientsByStatus(boolean status) {
+
+
+
+        return repository.findByActive(status);
+    }
+
+    @Override
+    public void desactivateClient(Long user_id) {
+        Client client = repository.findById(user_id)
+                .orElseThrow(() -> new EntityNotFoundException("cliente no encontrado"));
+        client.setActive(false);
+        repository.save(client);
     }
     
     @Override
