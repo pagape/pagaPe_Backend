@@ -113,58 +113,25 @@ public class ClientServiceImpl implements ClientService {
             clienteExistente.setUserPhone(userRequest.getUserPhone());
         }
         
-        // Actualizar los nuevos campos
-//        if (userRequest.getAmount() != null) {
-//            if (!userRequest.getAmount().equals(clienteExistente.getAmount())) {
-//                changesDetails.append("monto, ");
-//                hasChanges = true;
-//            }
-//            clienteExistente.setAmount(userRequest.getAmount());
-//        }
-//
-//        if (userRequest.getIssueDate() != null) {
-//            if (!userRequest.getIssueDate().equals(clienteExistente.getIssueDate())) {
-//                changesDetails.append("fecha de emisión, ");
-//                hasChanges = true;
-//            }
-//            clienteExistente.setIssueDate(userRequest.getIssueDate());
-//        }
-//
-//        if (userRequest.getDueDate() != null) {
-//            if (!userRequest.getDueDate().equals(clienteExistente.getDueDate())) {
-//                changesDetails.append("fecha de vencimiento, ");
-//                hasChanges = true;
-//            }
-//            clienteExistente.setDueDate(userRequest.getDueDate());
-//        }
 
 
-        if (userRequest.getStatus()) {
-            if (!userRequest.getStatus().equals(clienteExistente.getStatus())) {
-                changesDetails.append("estado, ");
-                hasChanges = true;
-            }
-            clienteExistente.setStatus(userRequest.getStatus());
+        if (userRequest.getActive()!= clienteExistente.getActive()) {
+            clienteExistente.setActive(userRequest.getActive());
+            hasChanges = true;
         }
 
-        /*
-        if (userRequest.getClientService() != null) {
-            if (!userRequest.getClientService().equals(clienteExistente.getClientService())) {
-                changesDetails.append("servicio, ");
-                hasChanges = true;
-            }
-            clienteExistente.setClientService(userRequest.getClientService());
-        }*/
-        
-        // Si no hay cambios, no actualizamos
+
         if (!hasChanges) {
             return clienteExistente;
         }
         
         // Guardar los cambios
         Client updatedClient = repository.save(clienteExistente);
-        
+
+        System.out.println(updatedClient);
         return updatedClient;
+
+
     }
 
     @Override

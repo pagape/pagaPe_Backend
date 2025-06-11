@@ -88,12 +88,7 @@ public class ClientController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateClient(@PathVariable Long id, @RequestBody ClientRequest clientRequest) {
         try {
-            // Obtener el nombre de usuario actual
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            
-            // Obtener cliente actual
-            //Client existingClient = clientService.getClientById(id);
-            
+
             // Actualizar el cliente usando el mapper
             Client updatedClient = clientService.updateClient(id, clientRequest);
 

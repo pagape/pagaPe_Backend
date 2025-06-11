@@ -18,7 +18,7 @@ public class ClientMapper {
                 .userLastName(client.getUserLastName())
                 .userEmail(client.getUserEmail())
                 .userPhone(client.getUserPhone())
-                .status(client.getStatus())
+                .active(client.getActive())
         .build();
     }
 
@@ -28,7 +28,7 @@ public class ClientMapper {
                 .userLastName(clientRequest.getUserLastName())
                 .userEmail(clientRequest.getUserEmail())
                 .userPhone(clientRequest.getUserPhone())
-                .status(true)
+                .active(clientRequest.getActive())
                 .build();
     }
     
@@ -37,7 +37,7 @@ public class ClientMapper {
         client.setUserLastName(request.getUserLastName());
         client.setUserEmail(request.getUserEmail());
         client.setUserPhone(request.getUserPhone());
-       client.setStatus(request.getStatus());
+       client.setActive(request.getActive());
         return client;
     }
 } 

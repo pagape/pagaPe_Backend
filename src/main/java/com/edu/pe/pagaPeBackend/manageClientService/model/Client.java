@@ -34,12 +34,15 @@ public class Client {
     private String userPhone;
 
 
-    @Column(name = "estado")
-    private Boolean status;
+    @Column(nullable = false)
+    private boolean active;
 
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
     private List<ClientService> serviciosContratados;
-    
 
+
+    public boolean getActive() {
+        return active;
+    }
 }

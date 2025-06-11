@@ -45,7 +45,7 @@ public class ClientServiceMapper {
                 .userLastName(client.getUserLastName())
                 .userEmail(client.getUserEmail())
                 .userPhone(client.getUserPhone())
-                .status(client.getStatus())
+                .active(client.getActive())
                 .build();
     }
     

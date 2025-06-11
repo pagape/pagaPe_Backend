@@ -23,6 +23,12 @@ public class ClientRequest {
     private String userEmail;
 
     private String userPhone;
-    
-   private Boolean status;
+
+
+    private boolean active;
+
+    public boolean getActive(){
+
+        return active;
+    }
 }
