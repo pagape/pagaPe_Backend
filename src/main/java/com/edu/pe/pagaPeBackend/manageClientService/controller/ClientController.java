@@ -1,7 +1,6 @@
 package com.edu.pe.pagaPeBackend.manageClientService.controller;
 
 import com.edu.pe.pagaPeBackend.manageClientService.dto.ClientMapper;
-import com.edu.pe.pagaPeBackend.manageClientService.dto.client.ClientHistoryResponse;
 import com.edu.pe.pagaPeBackend.manageClientService.dto.client.ClientRequest;
 import com.edu.pe.pagaPeBackend.manageClientService.dto.client.ClientResponse;
 import com.edu.pe.pagaPeBackend.manageClientService.exception.DuplicateClientPhoneException;
@@ -16,7 +15,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/clients")
@@ -24,6 +25,23 @@ public class ClientController {
 
     @Autowired
     private ClientService clientService;
+
+    @GetMapping
+    public ResponseEntity<?> getAllClients() {
+        try {
+            List<Client> clients = clientService.getAllClients();
+            List<ClientResponse> responses = clients.stream()
+                .map(ClientMapper::toClientResponse)
+                .collect(Collectors.toList());
+            return new ResponseEntity<>(responses, HttpStatus.OK);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("timestamp", java.time.LocalDateTime.now());
+            errorResponse.put("message", "Error al obtener los clientes: " + e.getMessage());
+            errorResponse.put("error", "Error del servidor");
+            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @PostMapping
     public ResponseEntity<?> createClient(@RequestBody ClientRequest clientRequest) {
@@ -66,39 +84,18 @@ public class ClientController {
             return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
-    @GetMapping("/{id}/history")
-    public ResponseEntity<?> getClientHistory(@PathVariable Long id) {
-        try {
-            ClientHistoryResponse historyResponse = clientService.getClientHistory(id);
-            return new ResponseEntity<>(historyResponse, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("timestamp", java.time.LocalDateTime.now());
-            errorResponse.put("message", e.getMessage());
-            errorResponse.put("error", "Recurso no encontrado");
-            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("timestamp", java.time.LocalDateTime.now());
-            errorResponse.put("message", "Error al obtener el historial del cliente: " + e.getMessage());
-            errorResponse.put("error", "Error del servidor");
-            return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateClient(@PathVariable Long id, @RequestBody ClientRequest clientRequest) {
         try {
             // Obtener el nombre de usuario actual
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String currentUsername = authentication.getName();
             
             // Obtener cliente actual
             //Client existingClient = clientService.getClientById(id);
             
             // Actualizar el cliente usando el mapper
-            Client updatedClient = clientService.updateClient(id, clientRequest, currentUsername);
+            Client updatedClient = clientService.updateClient(id, clientRequest);
 
             ClientResponse response = ClientMapper.toClientResponse(updatedClient);
             return new ResponseEntity<>(response, HttpStatus.OK);

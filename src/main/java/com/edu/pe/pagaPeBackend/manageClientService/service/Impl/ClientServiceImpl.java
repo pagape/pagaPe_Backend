@@ -1,15 +1,11 @@
 package com.edu.pe.pagaPeBackend.manageClientService.service.Impl;
 
 import com.edu.pe.pagaPeBackend.manageClientService.dto.ClientMapper;
-import com.edu.pe.pagaPeBackend.manageClientService.dto.ClientModificationMapper;
-import com.edu.pe.pagaPeBackend.manageClientService.dto.client.ClientHistoryResponse;
 import com.edu.pe.pagaPeBackend.manageClientService.dto.client.ClientRequest;
 import com.edu.pe.pagaPeBackend.manageClientService.dto.client.ClientResponse;
 import com.edu.pe.pagaPeBackend.manageClientService.exception.DuplicateClientPhoneException;
 import com.edu.pe.pagaPeBackend.manageClientService.exception.InvalidDataException;
 import com.edu.pe.pagaPeBackend.manageClientService.model.Client;
-import com.edu.pe.pagaPeBackend.manageClientService.model.ClientModification;
-import com.edu.pe.pagaPeBackend.manageClientService.repository.ClientModificationRepository;
 import com.edu.pe.pagaPeBackend.manageClientService.repository.ClientRepository;
 import com.edu.pe.pagaPeBackend.manageClientService.service.ClientService;
 import lombok.RequiredArgsConstructor;
@@ -26,9 +22,6 @@ public class ClientServiceImpl implements ClientService {
 
     @Autowired
     private ClientRepository repository;
-    
-    @Autowired
-    private ClientModificationRepository modificationRepository;
     
     // Patrón para validar correo electrónico
     private static final Pattern EMAIL_PATTERN = 
@@ -60,17 +53,6 @@ public class ClientServiceImpl implements ClientService {
         // Guardar el cliente
         Client savedClient = repository.save(newClient);
         
-        // Registrar la creación en el historial
-        ClientModification modification = ClientModification.builder()
-                .client(savedClient)
-                .modificationDate(LocalDateTime.now())
-                .modifiedBy("system")
-                .action(ClientModification.ModificationAction.CREATION)
-                .details("Creación inicial del cliente")
-                .build();
-        
-        modificationRepository.save(modification);
-        
         return savedClient;
     }
 
@@ -81,13 +63,10 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public Client updateClient(Long id, ClientRequest userRequest, String updatedBy) {
+    public Client updateClient(Long id, ClientRequest userRequest) {
         // Obtener el cliente existente
         Client clienteExistente = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
-        
-        // Validar datos actualizados
-        // validateUpdatedClientData(userRequest);
         
         // Validar que no exista otro cliente con el mismo número de teléfono
         if (userRequest.getUserPhone() != null && !userRequest.getUserPhone().isEmpty()) {
@@ -159,13 +138,14 @@ public class ClientServiceImpl implements ClientService {
             clienteExistente.setDueDate(userRequest.getDueDate());
         }
         
+        /*
         if (userRequest.getEstado() != null) {
             if (!userRequest.getEstado().equals(clienteExistente.getEstado())) {
                 changesDetails.append("estado, ");
                 hasChanges = true;
             }
             clienteExistente.setEstado(userRequest.getEstado());
-        }
+        }*/
 
         /*
         if (userRequest.getClientService() != null) {
@@ -181,29 +161,8 @@ public class ClientServiceImpl implements ClientService {
             return clienteExistente;
         }
         
-        // Eliminar la última coma y espacio
-        String details = changesDetails.toString();
-        if (details.endsWith(", ")) {
-            details = details.substring(0, details.length() - 2);
-        }
-        
-        // Actualizar información de auditoría
-        clienteExistente.setUpdatedAt(LocalDateTime.now());
-        clienteExistente.setUpdatedBy(updatedBy);
-
         // Guardar los cambios
         Client updatedClient = repository.save(clienteExistente);
-        
-        // Registrar la modificación en el historial
-        ClientModification modification = ClientModification.builder()
-                .client(updatedClient)
-                .modificationDate(LocalDateTime.now())
-                .modifiedBy(updatedBy)
-                .action(ClientModification.ModificationAction.UPDATE)
-                .details(details)
-                .build();
-        
-        modificationRepository.save(modification);
         
         return updatedClient;
     }
@@ -212,29 +171,13 @@ public class ClientServiceImpl implements ClientService {
     public void deleteClient(Long id) {
         Client client = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
-
-        // Registrar la eliminación en el historial antes de borrar
-        ClientModification modification = ClientModification.builder()
-                .client(client)
-                .modificationDate(LocalDateTime.now())
-                .modifiedBy("system")
-                .action(ClientModification.ModificationAction.DELETION)
-                .details("Eliminación del cliente")
-                .build();
-        
-        modificationRepository.save(modification);
         
         repository.deleteById(id);
     }
     
     @Override
-    public ClientHistoryResponse getClientHistory(Long clientId) {
-        Client client = repository.findById(clientId)
-                .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
-        
-        List<ClientModification> modifications = modificationRepository.findByClientOrderByModificationDateDesc(client);
-        
-        return ClientModificationMapper.toClientHistoryResponse(client, modifications);
+    public List<Client> getAllClients() {
+        return repository.findAll();
     }
     
     @Override
@@ -253,111 +196,67 @@ public class ClientServiceImpl implements ClientService {
         return PHONE_PATTERN.matcher(phone).matches();
     }
     
-    /**
-     * Valida los datos de un cliente nuevo
-     */
     private void validateClientData(ClientRequest request) {
-        // Validar datos obligatorios
-        if (request.getUserFirstName() == null || request.getUserFirstName().isEmpty()) {
-            throw new InvalidDataException("El nombre del usuario es obligatorio");
+        if (request == null) {
+            throw new InvalidDataException("Los datos del cliente no pueden ser nulos");
+        }
+
+        if (request.getUserFirstName() == null || request.getUserFirstName().trim().isEmpty()) {
+            throw new InvalidDataException("El nombre del cliente es obligatorio");
+        }
+
+        if (request.getUserLastName() == null || request.getUserLastName().trim().isEmpty()) {
+            throw new InvalidDataException("El apellido del cliente es obligatorio");
+        }
+
+        if (request.getUserEmail() == null || request.getUserEmail().trim().isEmpty()) {
+            throw new InvalidDataException("El correo electrónico es obligatorio");
         }
         
-        if (request.getUserFirstName().length() > 50) {
-            throw new InvalidDataException("El nombre no debe exceder los 50 caracteres");
-        }
-        
-        if (request.getUserLastName() == null || request.getUserLastName().isEmpty()) {
-            throw new InvalidDataException("El apellido del usuario es obligatorio");
-        }
-        
-        if (request.getUserLastName().length() > 50) {
-            throw new InvalidDataException("El apellido no debe exceder los 50 caracteres");
-        }
-        
-        if (request.getUserEmail() == null || request.getUserEmail().isEmpty()) {
-            throw new InvalidDataException("El email del usuario es obligatorio");
-        }
-        
-        if (request.getUserEmail().length() > 50) {
-            throw new InvalidDataException("El email no debe exceder los 50 caracteres");
-        }
-        
-        // Validar formato de email
         if (!isValidEmail(request.getUserEmail())) {
-            throw new InvalidDataException("El email debe tener un formato válido");
+            throw new InvalidDataException("El formato del correo electrónico no es válido");
         }
-        
-        // Validar formato de teléfono
+
         if (request.getUserPhone() != null && !request.getUserPhone().isEmpty() && !isValidPhone(request.getUserPhone())) {
-            throw new InvalidDataException("El teléfono debe tener entre 7 y 15 dígitos");
+            throw new InvalidDataException("El formato del número de teléfono no es válido");
         }
         
-        // Validar amount
         if (request.getAmount() == null) {
             throw new InvalidDataException("El monto es obligatorio");
         }
         
-        // Validar issueDate
-        if (request.getIssueDate() == null) {
-            throw new InvalidDataException("La fecha de emisión es obligatoria");
-        }
-        
-        // Validar dueDate
         if (request.getDueDate() == null) {
             throw new InvalidDataException("La fecha de vencimiento es obligatoria");
         }
         
-        // Validar que dueDate sea posterior a issueDate
-        if (request.getIssueDate() != null && request.getDueDate() != null 
-                && request.getDueDate().isBefore(request.getIssueDate())) {
-            throw new InvalidDataException("La fecha de vencimiento debe ser posterior a la fecha de emisión");
+        if (request.getIssueDate() == null) {
+            throw new InvalidDataException("La fecha de emisión es obligatoria");
         }
     }
     
-    /**
-     * Valida los datos para actualización de cliente
-     */
     private void validateUpdatedClientData(Client client) {
-        // Validar longitud de campos si no son nulos
-        if (client.getUserFirstName() != null) {
-            if (client.getUserFirstName().isEmpty()) {
-                throw new InvalidDataException("El nombre del usuario no puede estar vacío");
-            }
-            if (client.getUserFirstName().length() > 50) {
-                throw new InvalidDataException("El nombre no debe exceder los 50 caracteres");
-            }
+        if (client == null) {
+            throw new InvalidDataException("Los datos del cliente no pueden ser nulos");
+        }
+
+        if (client.getUserFirstName() == null || client.getUserFirstName().trim().isEmpty()) {
+            throw new InvalidDataException("El nombre del cliente es obligatorio");
+        }
+
+        if (client.getUserLastName() == null || client.getUserLastName().trim().isEmpty()) {
+            throw new InvalidDataException("El apellido del cliente es obligatorio");
+        }
+
+        if (client.getUserEmail() == null || client.getUserEmail().trim().isEmpty()) {
+            throw new InvalidDataException("El correo electrónico es obligatorio");
         }
         
-        if (client.getUserLastName() != null) {
-            if (client.getUserLastName().isEmpty()) {
-                throw new InvalidDataException("El apellido del usuario no puede estar vacío");
-            }
-            if (client.getUserLastName().length() > 50) {
-                throw new InvalidDataException("El apellido no debe exceder los 50 caracteres");
-            }
+        if (!isValidEmail(client.getUserEmail())) {
+            throw new InvalidDataException("El formato del correo electrónico no es válido");
         }
-        
-        if (client.getUserEmail() != null) {
-            if (client.getUserEmail().isEmpty()) {
-                throw new InvalidDataException("El email del usuario no puede estar vacío");
-            }
-            if (client.getUserEmail().length() > 50) {
-                throw new InvalidDataException("El email no debe exceder los 50 caracteres");
-            }
-            if (!isValidEmail(client.getUserEmail())) {
-                throw new InvalidDataException("El email debe tener un formato válido");
-            }
-        }
-        
+
         if (client.getUserPhone() != null && !client.getUserPhone().isEmpty() && !isValidPhone(client.getUserPhone())) {
-            throw new InvalidDataException("El teléfono debe tener entre 7 y 15 dígitos");
-        }
-        
-        // Validar fecha de emisión y vencimiento
-        if (client.getIssueDate() != null && client.getDueDate() != null) {
-            if (client.getDueDate().isBefore(client.getIssueDate())) {
-                throw new InvalidDataException("La fecha de vencimiento debe ser posterior a la fecha de emisión");
-            }
+            throw new InvalidDataException("El formato del número de teléfono no es válido");
         }
     }
 }

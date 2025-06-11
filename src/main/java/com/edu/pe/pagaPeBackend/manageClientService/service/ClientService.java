@@ -2,7 +2,6 @@ package com.edu.pe.pagaPeBackend.manageClientService.service;
 
 import com.edu.pe.pagaPeBackend.manageClientService.dto.ClientServiceRequest;
 import com.edu.pe.pagaPeBackend.manageClientService.dto.ClientServiceResponse;
-import com.edu.pe.pagaPeBackend.manageClientService.dto.client.ClientHistoryResponse;
 import com.edu.pe.pagaPeBackend.manageClientService.dto.client.ClientRequest;
 import com.edu.pe.pagaPeBackend.manageClientService.dto.client.ClientResponse;
 import com.edu.pe.pagaPeBackend.manageClientService.model.Client;
@@ -13,15 +12,14 @@ public interface ClientService {
     public abstract Client createClientService(ClientRequest request);
     public abstract Client getClientById(Long id);
 
-    public abstract Client updateClient(Long id, ClientRequest request, String updatedBy);
+    public abstract Client updateClient(Long id, ClientRequest request);
     public abstract void deleteClient(Long id);
     
     /**
-     * Obtiene el historial de modificaciones de un cliente
-     * @param clientId ID del cliente
-     * @return Historial de modificaciones
+     * Obtiene todos los clientes
+     * @return Lista de todos los clientes
      */
-    public abstract ClientHistoryResponse getClientHistory(Long clientId);
+    public abstract List<Client> getAllClients();
     
     /**
      * Valida el formato del correo electrónico

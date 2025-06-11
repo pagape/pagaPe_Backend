@@ -41,13 +41,9 @@ public class ClientServiceMapper {
                 .userLastName(client.getUserLastName())
                 .userEmail(client.getUserEmail())
                 .userPhone(client.getUserPhone())
-                .createdAt(client.getCreatedAt())
-                .updatedAt(client.getUpdatedAt())
-                .updatedBy(client.getUpdatedBy())
                 .amount(client.getAmount())
                 .issueDate(client.getIssueDate())
                 .dueDate(client.getDueDate())
-                .estado(client.getEstado())
                 .clientServiceId(client.getClientService() != null ? client.getClientService().getId() : null)
                 .build();
     }

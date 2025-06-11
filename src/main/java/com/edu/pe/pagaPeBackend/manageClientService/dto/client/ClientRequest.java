@@ -33,7 +33,5 @@ public class ClientRequest {
     @NotNull
     private LocalDate dueDate;
     
-    private Client.PaymentStatus estado;
-    
     private Long clientServiceId;
 }

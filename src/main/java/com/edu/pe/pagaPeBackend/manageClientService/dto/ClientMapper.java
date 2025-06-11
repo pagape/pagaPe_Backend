@@ -18,13 +18,9 @@ public class ClientMapper {
                 .userLastName(client.getUserLastName())
                 .userEmail(client.getUserEmail())
                 .userPhone(client.getUserPhone())
-                .createdAt(client.getCreatedAt())
-                .updatedAt(client.getUpdatedAt())
-                .updatedBy(client.getUpdatedBy())
                 .amount(client.getAmount())
                 .issueDate(client.getIssueDate())
                 .dueDate(client.getDueDate())
-                .estado(client.getEstado())
                 .clientServiceId(client.getClientService() != null ? client.getClientService().getId() : null)
                 .build();
     }
@@ -38,8 +34,6 @@ public class ClientMapper {
                 .amount(clientRequest.getAmount())
                 .issueDate(clientRequest.getIssueDate())
                 .dueDate(clientRequest.getDueDate())
-                .estado(clientRequest.getEstado())
-                .createdAt(LocalDateTime.now())
                 .build();
     }
     
@@ -51,8 +45,6 @@ public class ClientMapper {
         client.setAmount(request.getAmount());
         client.setIssueDate(request.getIssueDate());
         client.setDueDate(request.getDueDate());
-        client.setEstado(request.getEstado());
-        client.setUpdatedAt(LocalDateTime.now());
         return client;
     }
 } 

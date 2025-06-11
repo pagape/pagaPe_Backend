@@ -1,11 +1,9 @@
 package com.edu.pe.pagaPeBackend.manageClientService.model;
 
-import com.edu.pe.pagaPeBackend.receipt.model.Receipt;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Data
 @Builder
@@ -40,9 +38,6 @@ public class ClientService {
     
     @Column(name = "contrato_vigente", nullable = false)
     private boolean contratoVigente;
-
-    @OneToMany(mappedBy = "clienteServicio", cascade = CascadeType.ALL)
-    private List<Receipt> recibos;
     
     // Constants for estado values
     public static final byte ESTADO_ACTIVO = 1;

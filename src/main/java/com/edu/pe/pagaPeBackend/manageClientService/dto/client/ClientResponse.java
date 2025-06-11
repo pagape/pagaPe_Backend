@@ -20,12 +20,8 @@ public class ClientResponse {
     private String userLastName;
     private String userEmail;
     private String userPhone;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private String updatedBy;
     private BigDecimal amount;
     private LocalDate issueDate;
     private LocalDate dueDate;
-    private Client.PaymentStatus estado;
     private Long clientServiceId;
 }
