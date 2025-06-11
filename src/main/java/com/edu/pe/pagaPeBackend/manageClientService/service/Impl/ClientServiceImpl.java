@@ -114,38 +114,38 @@ public class ClientServiceImpl implements ClientService {
         }
         
         // Actualizar los nuevos campos
-        if (userRequest.getAmount() != null) {
-            if (!userRequest.getAmount().equals(clienteExistente.getAmount())) {
-                changesDetails.append("monto, ");
-                hasChanges = true;
-            }
-            clienteExistente.setAmount(userRequest.getAmount());
-        }
-        
-        if (userRequest.getIssueDate() != null) {
-            if (!userRequest.getIssueDate().equals(clienteExistente.getIssueDate())) {
-                changesDetails.append("fecha de emisión, ");
-                hasChanges = true;
-            }
-            clienteExistente.setIssueDate(userRequest.getIssueDate());
-        }
-        
-        if (userRequest.getDueDate() != null) {
-            if (!userRequest.getDueDate().equals(clienteExistente.getDueDate())) {
-                changesDetails.append("fecha de vencimiento, ");
-                hasChanges = true;
-            }
-            clienteExistente.setDueDate(userRequest.getDueDate());
-        }
-        
-        /*
-        if (userRequest.getEstado() != null) {
-            if (!userRequest.getEstado().equals(clienteExistente.getEstado())) {
+//        if (userRequest.getAmount() != null) {
+//            if (!userRequest.getAmount().equals(clienteExistente.getAmount())) {
+//                changesDetails.append("monto, ");
+//                hasChanges = true;
+//            }
+//            clienteExistente.setAmount(userRequest.getAmount());
+//        }
+//
+//        if (userRequest.getIssueDate() != null) {
+//            if (!userRequest.getIssueDate().equals(clienteExistente.getIssueDate())) {
+//                changesDetails.append("fecha de emisión, ");
+//                hasChanges = true;
+//            }
+//            clienteExistente.setIssueDate(userRequest.getIssueDate());
+//        }
+//
+//        if (userRequest.getDueDate() != null) {
+//            if (!userRequest.getDueDate().equals(clienteExistente.getDueDate())) {
+//                changesDetails.append("fecha de vencimiento, ");
+//                hasChanges = true;
+//            }
+//            clienteExistente.setDueDate(userRequest.getDueDate());
+//        }
+
+
+        if (userRequest.getStatus()) {
+            if (!userRequest.getStatus().equals(clienteExistente.getStatus())) {
                 changesDetails.append("estado, ");
                 hasChanges = true;
             }
-            clienteExistente.setEstado(userRequest.getEstado());
-        }*/
+            clienteExistente.setStatus(userRequest.getStatus());
+        }
 
         /*
         if (userRequest.getClientService() != null) {
@@ -221,17 +221,7 @@ public class ClientServiceImpl implements ClientService {
             throw new InvalidDataException("El formato del número de teléfono no es válido");
         }
         
-        if (request.getAmount() == null) {
-            throw new InvalidDataException("El monto es obligatorio");
-        }
-        
-        if (request.getDueDate() == null) {
-            throw new InvalidDataException("La fecha de vencimiento es obligatoria");
-        }
-        
-        if (request.getIssueDate() == null) {
-            throw new InvalidDataException("La fecha de emisión es obligatoria");
-        }
+
     }
     
     private void validateUpdatedClientData(Client client) {

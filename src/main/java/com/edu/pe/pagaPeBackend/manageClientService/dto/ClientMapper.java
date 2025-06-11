@@ -18,11 +18,8 @@ public class ClientMapper {
                 .userLastName(client.getUserLastName())
                 .userEmail(client.getUserEmail())
                 .userPhone(client.getUserPhone())
-                .amount(client.getAmount())
-                .issueDate(client.getIssueDate())
-                .dueDate(client.getDueDate())
-                .clientServiceId(client.getClientService() != null ? client.getClientService().getId() : null)
-                .build();
+                .status(client.getStatus())
+        .build();
     }
 
     public static Client toClient(ClientRequest clientRequest) {
@@ -31,9 +28,7 @@ public class ClientMapper {
                 .userLastName(clientRequest.getUserLastName())
                 .userEmail(clientRequest.getUserEmail())
                 .userPhone(clientRequest.getUserPhone())
-                .amount(clientRequest.getAmount())
-                .issueDate(clientRequest.getIssueDate())
-                .dueDate(clientRequest.getDueDate())
+                .status(true)
                 .build();
     }
     
@@ -42,9 +37,7 @@ public class ClientMapper {
         client.setUserLastName(request.getUserLastName());
         client.setUserEmail(request.getUserEmail());
         client.setUserPhone(request.getUserPhone());
-        client.setAmount(request.getAmount());
-        client.setIssueDate(request.getIssueDate());
-        client.setDueDate(request.getDueDate());
+       client.setStatus(request.getStatus());
         return client;
     }
 } 

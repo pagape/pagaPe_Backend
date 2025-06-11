@@ -1,11 +1,13 @@
 package com.edu.pe.pagaPeBackend.manageClientService.dto;
 
+import com.edu.pe.pagaPeBackend.manageClientService.model.ClientService;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
@@ -18,11 +20,15 @@ public class ClientServiceRequest {
     
     @NotNull
     private Long serviceId;
-    
-    private LocalDate fechaInicio;
-    private LocalDate fechaFin;
-    private Byte estado;
-    
+
     @NotNull
-    private Boolean contratoVigente;
+    private BigDecimal amount;
+
+    @NotNull
+    private LocalDate issueDate;
+
+    @NotNull
+    private LocalDate dueDate;
+
+    private ClientService.PaymentFrequency paymentFrequency;
 }

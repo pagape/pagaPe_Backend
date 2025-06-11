@@ -11,7 +11,7 @@ public class ServiceMapper {
                 .id(service.getId())
                 .nombreServicio(service.getNombreServicio())
                 .descripcion(service.getDescripcion())
-                .precioBase(service.getPrecioBase())
+
                 .build();
     }
     
@@ -19,14 +19,12 @@ public class ServiceMapper {
         return Service.builder()
                 .nombreServicio(request.getNombreServicio())
                 .descripcion(request.getDescripcion())
-                .precioBase(request.getPrecioBase())
                 .build();
     }
     
     public Service updateFromRequest(Service service, ServiceRequest request) {
         service.setNombreServicio(request.getNombreServicio());
         service.setDescripcion(request.getDescripcion());
-        service.setPrecioBase(request.getPrecioBase());
         return service;
     }
 } 

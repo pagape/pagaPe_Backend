@@ -24,14 +24,5 @@ public class ClientRequest {
 
     private String userPhone;
     
-    @NotNull
-    private BigDecimal amount;
-    
-    @NotNull
-    private LocalDate issueDate;
-    
-    @NotNull
-    private LocalDate dueDate;
-    
-    private Long clientServiceId;
+   private Boolean status;
 }

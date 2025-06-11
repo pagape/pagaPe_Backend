@@ -15,10 +15,12 @@ public class ClientServiceMapper {
                 .id(clientService.getId())
                 .client(mapClient(clientService.getClient()))
                 .service(mapService(clientService.getService()))
-                .fechaInicio(clientService.getFechaInicio())
-                .fechaFin(clientService.getFechaFin())
+                .issueDate(clientService.getIssueDate())
+                .dueDate(clientService.getDueDate())
+                .paymentFrequency(clientService.getPaymentFrequency())
+                .amount(clientService.getAmount())
                 .estado(clientService.getEstado())
-                .contratoVigente(clientService.isContratoVigente())
+                .contratoVigente(clientService.getContratoVigente())
                 .build();
     }
     
@@ -26,10 +28,12 @@ public class ClientServiceMapper {
         return ClientService.builder()
                 .client(client)
                 .service(service)
-                .fechaInicio(request.getFechaInicio())
-                .fechaFin(request.getFechaFin())
-                .estado(request.getEstado())
-                .contratoVigente(request.getContratoVigente())
+                .dueDate(request.getDueDate())
+                .issueDate(request.getIssueDate())
+                .amount(request.getAmount())
+                .paymentFrequency(request.getPaymentFrequency())
+                .contratoVigente(true)
+                .estado(true)
                 .build();
     }
     
@@ -41,10 +45,7 @@ public class ClientServiceMapper {
                 .userLastName(client.getUserLastName())
                 .userEmail(client.getUserEmail())
                 .userPhone(client.getUserPhone())
-                .amount(client.getAmount())
-                .issueDate(client.getIssueDate())
-                .dueDate(client.getDueDate())
-                .clientServiceId(client.getClientService() != null ? client.getClientService().getId() : null)
+                .status(client.getStatus())
                 .build();
     }
     
@@ -54,7 +55,6 @@ public class ClientServiceMapper {
                 .id(service.getId())
                 .nombreServicio(service.getNombreServicio())
                 .descripcion(service.getDescripcion())
-                .precioBase(service.getPrecioBase())
                 .build();
     }
 } 
