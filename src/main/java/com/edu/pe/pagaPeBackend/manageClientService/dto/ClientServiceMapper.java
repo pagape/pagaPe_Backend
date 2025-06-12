@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ClientServiceMapper {
 
-    public ClientServiceResponse toResponse(ClientService clientService) {
+    public static ClientServiceResponse toResponse(ClientService clientService) {
         return ClientServiceResponse.builder()
                 .id(clientService.getId())
                 .client(mapClient(clientService.getClient()))
@@ -24,7 +24,7 @@ public class ClientServiceMapper {
                 .build();
     }
     
-    public ClientService toEntity(ClientServiceRequest request, Client client, Service service) {
+    public static ClientService toEntity(ClientServiceRequest request, Client client, Service service) {
         return ClientService.builder()
                 .client(client)
                 .service(service)
@@ -37,7 +37,7 @@ public class ClientServiceMapper {
                 .build();
     }
     
-    private ClientResponse mapClient(Client client) {
+    private static ClientResponse mapClient(Client client) {
         if (client == null) return null;
         return ClientResponse.builder()
                 .id(client.getId())
@@ -49,7 +49,7 @@ public class ClientServiceMapper {
                 .build();
     }
     
-    private ServiceResponse mapService(Service service) {
+    private static ServiceResponse mapService(Service service) {
         if (service == null) return null;
         return ServiceResponse.builder()
                 .id(service.getId())
