@@ -234,4 +234,25 @@ public class ClientServiceImpl implements ClientService {
             throw new InvalidDataException("El formato del número de teléfono no es válido");
         }
     }
+    
+    @Override
+    public List<Client> searchClients(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            return getAllClients();
+        }
+        
+        String searchTerm = query.trim().toLowerCase();
+        return repository.findByUserFirstNameContainingIgnoreCaseOrUserLastNameContainingIgnoreCaseOrUserPhoneContaining(
+                searchTerm, searchTerm, searchTerm);
+    }
+    
+    @Override
+    public List<Client> filterClientsByLetter(String letter) {
+        if (letter == null || letter.trim().isEmpty()) {
+            return getAllClients();
+        }
+        
+        String filterLetter = letter.trim().toUpperCase();
+        return repository.findByUserFirstNameStartingWithIgnoreCaseOrderByUserFirstNameAsc(filterLetter);
+    }
 }

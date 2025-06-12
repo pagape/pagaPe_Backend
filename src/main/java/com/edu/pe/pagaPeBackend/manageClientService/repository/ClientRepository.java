@@ -18,4 +18,10 @@ public interface ClientRepository extends JpaRepository<Client,Long> {
     Optional<Client> findByUserPhoneAndIdNot(String userPhone, Long clientId);
 
     List<Client> findByActive(boolean active);
+    
+    // Métodos para búsqueda y filtrado
+    List<Client> findByUserFirstNameContainingIgnoreCaseOrUserLastNameContainingIgnoreCaseOrUserPhoneContaining(
+            String firstName, String lastName, String phone);
+    
+    List<Client> findByUserFirstNameStartingWithIgnoreCaseOrderByUserFirstNameAsc(String letter);
 }
