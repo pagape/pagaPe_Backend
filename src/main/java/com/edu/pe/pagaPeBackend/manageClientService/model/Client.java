@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -37,6 +38,8 @@ public class Client {
     @Column(nullable = false)
     private boolean active;
 
+    @Column(name = "createdAt")
+    private LocalDate created;
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
     private List<ClientService> serviciosContratados;

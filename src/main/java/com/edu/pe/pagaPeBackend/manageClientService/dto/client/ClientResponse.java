@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -15,6 +18,8 @@ public class ClientResponse {
     private String userLastName;
     private String userEmail;
     private String userPhone;
+
+    private LocalDate created;
     private boolean active;
 
     public boolean getActive(){

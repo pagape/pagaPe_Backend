@@ -6,6 +6,7 @@ import com.edu.pe.pagaPeBackend.manageClientService.model.Client;
 import com.edu.pe.pagaPeBackend.manageClientService.model.ClientService;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Component
@@ -18,6 +19,7 @@ public class ClientMapper {
                 .userLastName(client.getUserLastName())
                 .userEmail(client.getUserEmail())
                 .userPhone(client.getUserPhone())
+                .created(client.getCreated())
                 .active(client.getActive())
         .build();
     }
@@ -28,6 +30,7 @@ public class ClientMapper {
                 .userLastName(clientRequest.getUserLastName())
                 .userEmail(clientRequest.getUserEmail())
                 .userPhone(clientRequest.getUserPhone())
+                .created(LocalDate.now())
                 .active(clientRequest.getActive())
                 .build();
     }
