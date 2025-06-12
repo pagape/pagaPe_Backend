@@ -41,6 +41,12 @@ public class ClientServiceController {
         }
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ClientServiceResponse> getById(@PathVariable Long id) {
+        ClientServiceResponse response = service.getCSById(id);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping
     public ResponseEntity<?> create(@RequestBody ClientServiceRequest request) {
         try {
@@ -58,5 +64,21 @@ public class ClientServiceController {
             errorResponse.put("error", "Error del servidor");
             return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<ClientServiceResponse> update(
+            @PathVariable Long id,
+            @RequestBody ClientServiceRequest request
+    ) {
+        ClientServiceResponse response = service.updateCS(request,id);
+        return ResponseEntity.ok(response);
+    }
+
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.deleteCS(id);
+        return ResponseEntity.noContent().build();
     }
 }

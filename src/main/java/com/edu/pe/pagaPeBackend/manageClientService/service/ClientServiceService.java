@@ -10,7 +10,7 @@ public interface ClientServiceService {
     public abstract ClientServiceResponse createClientService(ClientServiceRequest request);
     public abstract ClientServiceResponse getCSById(Long id);
 
-    public abstract ClientServiceResponse updateCS(com.edu.pe.pagaPeBackend.manageClientService.model.ClientService user);
+    public abstract ClientServiceResponse updateCS(ClientServiceRequest request, Long id);
     public abstract void deleteCS(Long id);
     public abstract boolean existsCSbyid(Long id);
 

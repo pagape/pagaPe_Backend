@@ -15,19 +15,17 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ClientServiceRequest {
-    @NotNull
+
     private Long clientId;
-    
-    @NotNull
+
     private Long serviceId;
 
-    @NotNull
     private BigDecimal amount;
 
-    @NotNull
+
     private LocalDate issueDate;
 
-    @NotNull
+
     private LocalDate dueDate;
 
     private boolean active;
