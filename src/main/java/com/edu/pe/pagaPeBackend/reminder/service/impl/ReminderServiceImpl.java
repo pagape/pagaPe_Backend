@@ -43,6 +43,8 @@ public class ReminderServiceImpl implements ReminderService {
             reminder.setDescription(template);
         }
 
+        //TODO: Validate type service from Client
+
         // Estado por defecto
         reminder.setResponseStatus(ResponseStatus.PENDIENTE);
 
