@@ -3,6 +3,7 @@ package com.edu.pe.pagaPeBackend.reminder.controller;
 import com.edu.pe.pagaPeBackend.reminder.dto.reminder.ReminderRequestDTO;
 import com.edu.pe.pagaPeBackend.reminder.dto.reminder.ReminderResponseDTO;
 import com.edu.pe.pagaPeBackend.reminder.model.Reminder;
+import com.edu.pe.pagaPeBackend.reminder.model.ResponseStatus;
 import com.edu.pe.pagaPeBackend.reminder.service.ReminderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -94,6 +95,23 @@ public class ReminderController {
             return new ResponseEntity<>(list, HttpStatus.OK);
         } catch (Exception e) {
             return errorResponse("Error del servidor", e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/{id}/status")
+    public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestBody Map<String, String> request) {
+        try {
+            String newStatusStr = request.get("status");
+            if (newStatusStr == null) {
+                return errorResponse("Petición inválida", "El cuerpo debe contener el 'status'", HttpStatus.BAD_REQUEST);
+            }
+            ResponseStatus newStatus = ResponseStatus.valueOf(newStatusStr.toUpperCase());
+            reminderService.updateReminderStatus(id, newStatus);
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return errorResponse("Valor inválido", "El status '" + request.get("status") + "' no es válido.", HttpStatus.BAD_REQUEST);
+        } catch (RuntimeException e) {
+            return errorResponse("No encontrado", e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 

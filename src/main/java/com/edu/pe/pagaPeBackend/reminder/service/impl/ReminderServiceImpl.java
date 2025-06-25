@@ -9,6 +9,7 @@ import com.edu.pe.pagaPeBackend.reminder.service.ReminderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -24,6 +25,7 @@ public class ReminderServiceImpl implements ReminderService {
     private ClientRepository clientRepository;
 
     @Override
+    @Transactional
     public Reminder createReminder(Reminder reminder, Long clientId) {
         // Validar fecha futura
         if (reminder.getSendDateTime().isBefore(LocalDateTime.now())) {
@@ -52,16 +54,19 @@ public class ReminderServiceImpl implements ReminderService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Reminder> getByClient(Long clientId) {
         return reminderRepository.findByClientId(clientId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Reminder> getExpired() {
         return reminderRepository.findBySendDateTimeBefore(LocalDateTime.now());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Reminder> getExpireToday() {
         LocalDateTime start = LocalDate.now().atStartOfDay();
         LocalDateTime end = LocalDate.now().atTime(LocalTime.MAX);
@@ -69,12 +74,39 @@ public class ReminderServiceImpl implements ReminderService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Reminder> getExpireInNextDays(int days) {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime futuro = now.plusDays(days);
         return reminderRepository.findBySendDateTimeBetween(now, futuro);
     }
+
     @Override
+    @Transactional
+    public void updateReminderStatus(Long reminderId, ResponseStatus newStatus) {
+        // Busca el recordatorio en la BD
+        Reminder reminder = reminderRepository.findById(reminderId)
+                .orElseThrow(() -> new RuntimeException("Recordatorio no encontrado con id: " + reminderId));
+
+        // Cambia su estado
+        reminder.setResponseStatus(newStatus);
+
+        // Guarda cambios
+        reminderRepository.save(reminder);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Reminder> findRemindersReadyToSend() {
+        // Devuelve recordatorios cuya fecha de envío ya pasó y que siguen PENDIENTES
+        return reminderRepository.findBySendDateTimeBeforeAndResponseStatus(
+                LocalDateTime.now(),
+                ResponseStatus.PENDIENTE
+        );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<Reminder> getAll() {
         return reminderRepository.findAll();
     }
@@ -86,5 +118,6 @@ public class ReminderServiceImpl implements ReminderService {
             return "Estimado cliente, su pago está próximo a vencer.";
         }
     }
+
 
 }

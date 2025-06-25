@@ -17,6 +17,7 @@ public interface ReminderRepository extends JpaRepository<Reminder, Long> {
 
     List<Reminder> findBySendDateTimeBefore(java.time.LocalDateTime date); // Para obtener vencidos
     List<Reminder> findBySendDateTimeBetween(LocalDateTime start, LocalDateTime end);
+    List<Reminder> findBySendDateTimeBeforeAndResponseStatus(LocalDateTime date, ResponseStatus status);
 
 
 }
