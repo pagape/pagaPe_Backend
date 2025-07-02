@@ -39,7 +39,7 @@ public class WhatsAppGatewayImpl implements WhatsAppGateway {
                 "to": "%s",
                 "type": "template",
                 "template": {
-                    "name": "recordatorio_deuda_detallado",
+                    "name": "recordatorio_deuda_detallado1",
                     "language": { "code": "es" },
                     "components": [
                         {
