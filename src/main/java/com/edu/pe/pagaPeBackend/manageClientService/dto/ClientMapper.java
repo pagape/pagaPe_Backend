@@ -6,6 +6,7 @@ import com.edu.pe.pagaPeBackend.manageClientService.model.Client;
 import com.edu.pe.pagaPeBackend.manageClientService.model.ClientService;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Component
@@ -18,11 +19,9 @@ public class ClientMapper {
                 .userLastName(client.getUserLastName())
                 .userEmail(client.getUserEmail())
                 .userPhone(client.getUserPhone())
-                .amount(client.getAmount())
-                .issueDate(client.getIssueDate())
-                .dueDate(client.getDueDate())
-                .clientServiceId(client.getClientService() != null ? client.getClientService().getId() : null)
-                .build();
+                .created(client.getCreated())
+                .active(client.getActive())
+        .build();
     }
 
     public static Client toClient(ClientRequest clientRequest) {
@@ -31,9 +30,8 @@ public class ClientMapper {
                 .userLastName(clientRequest.getUserLastName())
                 .userEmail(clientRequest.getUserEmail())
                 .userPhone(clientRequest.getUserPhone())
-                .amount(clientRequest.getAmount())
-                .issueDate(clientRequest.getIssueDate())
-                .dueDate(clientRequest.getDueDate())
+                .created(LocalDate.now())
+                .active(clientRequest.getActive())
                 .build();
     }
     
@@ -42,9 +40,7 @@ public class ClientMapper {
         client.setUserLastName(request.getUserLastName());
         client.setUserEmail(request.getUserEmail());
         client.setUserPhone(request.getUserPhone());
-        client.setAmount(request.getAmount());
-        client.setIssueDate(request.getIssueDate());
-        client.setDueDate(request.getDueDate());
+       client.setActive(request.getActive());
         return client;
     }
 } 

@@ -212,6 +212,28 @@ public class UserController {
     // Nuevo endpoint para obtener detalles de usuario, eventos y reservas
 
 
+
+    // Nuevo endpoint para verificar si un DNI ya existe en el sistema
+    @GetMapping("/check/dni/{dni}")
+    public ResponseEntity<Boolean> checkDniExists(@PathVariable String dni) {
+        boolean exists = userRepository.existsByUserDNI(dni);
+        return ResponseEntity.ok(exists);
+    }
+
+    // Nuevo endpoint para verificar si un email ya existe en el sistema
+    @GetMapping("/check/email/{email}")
+    public ResponseEntity<Boolean> checkEmailExists(@PathVariable String email) {
+        boolean exists = userRepository.existsByUserEmail(email);
+        return ResponseEntity.ok(exists);
+    }
+
+    // Nuevo endpoint para verificar si un número de teléfono ya existe en el sistema
+    @GetMapping("/check/phone/{phone}")
+    public ResponseEntity<Boolean> checkPhoneExists(@PathVariable String phone) {
+        boolean exists = userRepository.existsByUserPhone(phone);
+        return ResponseEntity.ok(exists);
+    }
+
     private UserDTO convertToDto(User user) {
 
         return UserDTO.builder()
@@ -296,11 +318,5 @@ public class UserController {
             return userService.updateUser(userToUpdate);
         }).orElseThrow(() -> new ResourceNotFoundException("User not found with id " + user.getId()));
     }
-
-
-
-
-
-
 
 }

@@ -2,11 +2,14 @@ package com.edu.pe.pagaPeBackend.manageClientService.dto;
 
 import com.edu.pe.pagaPeBackend.manageClientService.dto.Service.ServiceResponse;
 import com.edu.pe.pagaPeBackend.manageClientService.dto.client.ClientResponse;
+import com.edu.pe.pagaPeBackend.manageClientService.model.ClientService;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
@@ -17,19 +20,23 @@ public class ClientServiceResponse {
     private Long id;
     private ClientResponse client;
     private ServiceResponse service;
-    private LocalDate fechaInicio;
-    private LocalDate fechaFin;
-    private Byte estado;
-    private Boolean contratoVigente;
-    
-    // Helper method to get estado as readable string
-    public String getEstadoAsString() {
-        if (estado == null) return null;
-        switch (estado) {
-            case 1: return "Activo";
-            case 2: return "Suspendido";
-            case 3: return "Cancelado";
-            default: return "Desconocido";
-        }
+
+    private BigDecimal amount;
+
+
+    private LocalDate issueDate;
+
+
+    private LocalDate dueDate;
+
+    private ClientService.PaymentFrequency paymentFrequency;
+
+    private boolean active;
+
+    public boolean getActive(){
+
+        return active;
     }
+
+    private boolean contratoVigente;
 }

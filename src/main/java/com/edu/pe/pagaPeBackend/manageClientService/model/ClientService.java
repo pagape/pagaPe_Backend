@@ -3,6 +3,7 @@ package com.edu.pe.pagaPeBackend.manageClientService.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
@@ -27,20 +28,33 @@ public class ClientService {
     @JoinColumn(name = "service_id", nullable = false)
     private Service service;
 
-    @Column(name = "fecha_inicio")
-    private LocalDate fechaInicio;
-    
-    @Column(name = "fecha_fin")
-    private LocalDate fechaFin;
-    
-    @Column(name = "estado")
-    private Byte estado; // tinyint in database
+    @Column(name="amount", nullable = false, precision = 10, scale = 2)
+    private BigDecimal amount;
+
+    @Column(name="issue_date", nullable = false)
+    private LocalDate issueDate;
+
+    @Column(name="due_date", nullable = false)
+    private LocalDate dueDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name="payment_frequency")
+    private PaymentFrequency paymentFrequency = PaymentFrequency.FIN_DE_MES;
+
+
+
+    @Column(nullable = false)
+    private boolean active;
     
     @Column(name = "contrato_vigente", nullable = false)
-    private boolean contratoVigente;
-    
-    // Constants for estado values
-    public static final byte ESTADO_ACTIVO = 1;
-    public static final byte ESTADO_SUSPENDIDO = 2;
-    public static final byte ESTADO_CANCELADO = 3;
+    private Boolean contratoVigente;
+
+    public boolean getActive() {
+        return active;
+    }
+
+
+    public enum PaymentFrequency {
+        QUINCENAL, FIN_DE_MES
+    }
 }

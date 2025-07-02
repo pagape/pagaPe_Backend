@@ -7,11 +7,15 @@ import com.edu.pe.pagaPeBackend.manageClientService.exception.DuplicateClientPho
 import com.edu.pe.pagaPeBackend.manageClientService.exception.InvalidDataException;
 import com.edu.pe.pagaPeBackend.manageClientService.model.Client;
 import com.edu.pe.pagaPeBackend.manageClientService.service.ClientService;
+import com.edu.pe.pagaPeBackend.user.dto.users.UserDTO;
+import com.edu.pe.pagaPeBackend.user.dto.users.UserMapper;
+import com.edu.pe.pagaPeBackend.user.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -41,6 +45,17 @@ public class ClientController {
             errorResponse.put("error", "Error del servidor");
             return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @Transactional(readOnly = true)
+    @GetMapping("/status/{status}")
+    public ResponseEntity<List<ClientResponse>> getAllClientsByStatus(@PathVariable Boolean status) {
+
+        List<Client> users = clientService.getAllClientsByStatus(status);
+        List<ClientResponse> userDTOs = users.stream()
+                .map(ClientMapper::toClientResponse)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(userDTOs);
     }
 
     @PostMapping
@@ -88,12 +103,7 @@ public class ClientController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateClient(@PathVariable Long id, @RequestBody ClientRequest clientRequest) {
         try {
-            // Obtener el nombre de usuario actual
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            
-            // Obtener cliente actual
-            //Client existingClient = clientService.getClientById(id);
-            
+
             // Actualizar el cliente usando el mapper
             Client updatedClient = clientService.updateClient(id, clientRequest);
 
@@ -123,7 +133,7 @@ public class ClientController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteClient(@PathVariable Long id) {
         try {
-            clientService.deleteClient(id);
+            clientService.desactivateClient(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (RuntimeException e) {
             Map<String, Object> errorResponse = new HashMap<>();

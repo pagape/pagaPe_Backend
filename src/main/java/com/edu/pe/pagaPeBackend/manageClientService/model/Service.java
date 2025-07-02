@@ -21,7 +21,7 @@ public class Service {
 
     private String nombreServicio;
     private String descripcion;
-    private Double precioBase;
+   // private Double precioBase;
 
 
     @OneToMany(mappedBy = "service", cascade = CascadeType.ALL)

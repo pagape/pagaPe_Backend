@@ -8,6 +8,8 @@ import com.edu.pe.pagaPeBackend.manageClientService.exception.InvalidDataExcepti
 import com.edu.pe.pagaPeBackend.manageClientService.model.Client;
 import com.edu.pe.pagaPeBackend.manageClientService.repository.ClientRepository;
 import com.edu.pe.pagaPeBackend.manageClientService.service.ClientService;
+import com.edu.pe.pagaPeBackend.user.model.User;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -113,58 +115,25 @@ public class ClientServiceImpl implements ClientService {
             clienteExistente.setUserPhone(userRequest.getUserPhone());
         }
         
-        // Actualizar los nuevos campos
-        if (userRequest.getAmount() != null) {
-            if (!userRequest.getAmount().equals(clienteExistente.getAmount())) {
-                changesDetails.append("monto, ");
-                hasChanges = true;
-            }
-            clienteExistente.setAmount(userRequest.getAmount());
-        }
-        
-        if (userRequest.getIssueDate() != null) {
-            if (!userRequest.getIssueDate().equals(clienteExistente.getIssueDate())) {
-                changesDetails.append("fecha de emisión, ");
-                hasChanges = true;
-            }
-            clienteExistente.setIssueDate(userRequest.getIssueDate());
-        }
-        
-        if (userRequest.getDueDate() != null) {
-            if (!userRequest.getDueDate().equals(clienteExistente.getDueDate())) {
-                changesDetails.append("fecha de vencimiento, ");
-                hasChanges = true;
-            }
-            clienteExistente.setDueDate(userRequest.getDueDate());
-        }
-        
-        /*
-        if (userRequest.getEstado() != null) {
-            if (!userRequest.getEstado().equals(clienteExistente.getEstado())) {
-                changesDetails.append("estado, ");
-                hasChanges = true;
-            }
-            clienteExistente.setEstado(userRequest.getEstado());
-        }*/
 
-        /*
-        if (userRequest.getClientService() != null) {
-            if (!userRequest.getClientService().equals(clienteExistente.getClientService())) {
-                changesDetails.append("servicio, ");
-                hasChanges = true;
-            }
-            clienteExistente.setClientService(userRequest.getClientService());
-        }*/
-        
-        // Si no hay cambios, no actualizamos
+
+        if (userRequest.getActive()!= clienteExistente.getActive()) {
+            clienteExistente.setActive(userRequest.getActive());
+            hasChanges = true;
+        }
+
+
         if (!hasChanges) {
             return clienteExistente;
         }
         
         // Guardar los cambios
         Client updatedClient = repository.save(clienteExistente);
-        
+
+        System.out.println(updatedClient);
         return updatedClient;
+
+
     }
 
     @Override
@@ -173,6 +142,22 @@ public class ClientServiceImpl implements ClientService {
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
         
         repository.deleteById(id);
+    }
+
+    @Override
+    public List<Client> getAllClientsByStatus(boolean status) {
+
+
+
+        return repository.findByActive(status);
+    }
+
+    @Override
+    public void desactivateClient(Long user_id) {
+        Client client = repository.findById(user_id)
+                .orElseThrow(() -> new EntityNotFoundException("cliente no encontrado"));
+        client.setActive(false);
+        repository.save(client);
     }
     
     @Override
@@ -221,17 +206,7 @@ public class ClientServiceImpl implements ClientService {
             throw new InvalidDataException("El formato del número de teléfono no es válido");
         }
         
-        if (request.getAmount() == null) {
-            throw new InvalidDataException("El monto es obligatorio");
-        }
-        
-        if (request.getDueDate() == null) {
-            throw new InvalidDataException("La fecha de vencimiento es obligatoria");
-        }
-        
-        if (request.getIssueDate() == null) {
-            throw new InvalidDataException("La fecha de emisión es obligatoria");
-        }
+
     }
     
     private void validateUpdatedClientData(Client client) {

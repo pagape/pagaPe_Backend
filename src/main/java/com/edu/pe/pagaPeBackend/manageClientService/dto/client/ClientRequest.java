@@ -23,15 +23,12 @@ public class ClientRequest {
     private String userEmail;
 
     private String userPhone;
-    
-    @NotNull
-    private BigDecimal amount;
-    
-    @NotNull
-    private LocalDate issueDate;
-    
-    @NotNull
-    private LocalDate dueDate;
-    
-    private Long clientServiceId;
+
+
+    private boolean active;
+
+    public boolean getActive(){
+
+        return active;
+    }
 }

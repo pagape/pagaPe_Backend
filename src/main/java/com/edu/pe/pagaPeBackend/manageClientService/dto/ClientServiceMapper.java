@@ -10,30 +10,34 @@ import org.springframework.stereotype.Component;
 @Component
 public class ClientServiceMapper {
 
-    public ClientServiceResponse toResponse(ClientService clientService) {
+    public static ClientServiceResponse toResponse(ClientService clientService) {
         return ClientServiceResponse.builder()
                 .id(clientService.getId())
                 .client(mapClient(clientService.getClient()))
                 .service(mapService(clientService.getService()))
-                .fechaInicio(clientService.getFechaInicio())
-                .fechaFin(clientService.getFechaFin())
-                .estado(clientService.getEstado())
-                .contratoVigente(clientService.isContratoVigente())
+                .issueDate(clientService.getIssueDate())
+                .dueDate(clientService.getDueDate())
+                .paymentFrequency(clientService.getPaymentFrequency())
+                .amount(clientService.getAmount())
+                .active(clientService.getActive())
+                .contratoVigente(clientService.getContratoVigente())
                 .build();
     }
     
-    public ClientService toEntity(ClientServiceRequest request, Client client, Service service) {
+    public static ClientService toEntity(ClientServiceRequest request, Client client, Service service) {
         return ClientService.builder()
                 .client(client)
                 .service(service)
-                .fechaInicio(request.getFechaInicio())
-                .fechaFin(request.getFechaFin())
-                .estado(request.getEstado())
-                .contratoVigente(request.getContratoVigente())
+                .dueDate(request.getDueDate())
+                .issueDate(request.getIssueDate())
+                .amount(request.getAmount())
+                .paymentFrequency(request.getPaymentFrequency())
+                .contratoVigente(true)
+                .active(true)
                 .build();
     }
     
-    private ClientResponse mapClient(Client client) {
+    private static ClientResponse mapClient(Client client) {
         if (client == null) return null;
         return ClientResponse.builder()
                 .id(client.getId())
@@ -41,20 +45,16 @@ public class ClientServiceMapper {
                 .userLastName(client.getUserLastName())
                 .userEmail(client.getUserEmail())
                 .userPhone(client.getUserPhone())
-                .amount(client.getAmount())
-                .issueDate(client.getIssueDate())
-                .dueDate(client.getDueDate())
-                .clientServiceId(client.getClientService() != null ? client.getClientService().getId() : null)
+                .active(client.getActive())
                 .build();
     }
     
-    private ServiceResponse mapService(Service service) {
+    private static ServiceResponse mapService(Service service) {
         if (service == null) return null;
         return ServiceResponse.builder()
                 .id(service.getId())
                 .nombreServicio(service.getNombreServicio())
                 .descripcion(service.getDescripcion())
-                .precioBase(service.getPrecioBase())
                 .build();
     }
 } 
