@@ -43,12 +43,6 @@ public class WhatsAppGatewayImpl implements WhatsAppGateway {
                     "language": { "code": "es" },
                     "components": [
                         {
-                            "type": "header",
-                            "parameters": [
-                                { "type": "text", "text": "Recordatorio de Vencimiento" }
-                            ]
-                        },
-                        {
                             "type": "body",
                             "parameters": [
                                 { "type": "text", "text": "%s" },
