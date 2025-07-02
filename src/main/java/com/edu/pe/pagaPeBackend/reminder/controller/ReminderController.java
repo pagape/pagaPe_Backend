@@ -5,6 +5,7 @@ import com.edu.pe.pagaPeBackend.reminder.dto.reminder.ReminderResponseDTO;
 import com.edu.pe.pagaPeBackend.reminder.model.Reminder;
 import com.edu.pe.pagaPeBackend.reminder.model.ResponseStatus;
 import com.edu.pe.pagaPeBackend.reminder.service.ReminderService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
@@ -22,16 +23,9 @@ public class ReminderController {
     private ReminderService reminderService;
 
     @PostMapping
-    public ResponseEntity<?> createReminder(@RequestBody ReminderRequestDTO dto) {
+    public ResponseEntity<?> createReminder(@RequestBody @Valid ReminderRequestDTO dto) { // <-- Usamos el nuevo DTO
         try {
-            Reminder reminder = new Reminder();
-            reminder.setDescription(dto.getDescription());
-            reminder.setSendDateTime(dto.getSendDateTime());
-            reminder.setTypeService(dto.getTypeService());
-            reminder.setClientWhatsappPhoneNumber(dto.getClientWhatsappPhoneNumber());
-            reminder.setIsDebtor(dto.getIsDebtor());
-
-            Reminder saved = reminderService.createReminder(reminder, dto.getClientId());
+            Reminder saved = reminderService.createReminder(dto);
 
             ReminderResponseDTO response = toResponseDTO(saved);
             return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -39,7 +33,9 @@ public class ReminderController {
         } catch (IllegalArgumentException e) {
             return errorResponse("Validación fallida", e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            return errorResponse("Error del servidor", "No se pudo crear el recordatorio", HttpStatus.INTERNAL_SERVER_ERROR);
+            // Log del error para depuración
+            e.printStackTrace();
+            return errorResponse("Error del servidor", "No se pudo crear el recordatorio.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

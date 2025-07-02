@@ -4,6 +4,7 @@ import com.edu.pe.pagaPeBackend.manageClientService.model.Client;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data

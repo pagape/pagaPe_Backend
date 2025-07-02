@@ -1,5 +1,6 @@
 package com.edu.pe.pagaPeBackend.reminder.scheduler;
 
+import com.edu.pe.pagaPeBackend.manageClientService.model.Client;
 import com.edu.pe.pagaPeBackend.reminder.gateway.WhatsAppGateway;
 import com.edu.pe.pagaPeBackend.reminder.model.Reminder;
 import com.edu.pe.pagaPeBackend.reminder.model.ResponseStatus;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 
 @Component
 public class ReminderScheduler {
@@ -34,20 +36,32 @@ public class ReminderScheduler {
 
         System.out.println("--> [Scheduler] Se encontraron " + remindersToSend.size() + " recordatorios para procesar.");
 
+        java.time.format.DateTimeFormatter dateFormatter = java.time.format.DateTimeFormatter.ofPattern("dd 'de' MMMM 'de' yyyy", new Locale("es", "ES"));
+
         for (Reminder reminder : remindersToSend) {
             try {
-                // 1. Intentamos enviar el mensaje PRIMERO
+                // Prepara las 4 piezas de texto para la plantilla
+                Client client = reminder.getClient();
+                String p1_clientName = client.getUserFirstName();
+                String p2_amount = String.format(new Locale("es", "PE"), "S/ %.2f", client.getAmount());
+                String p3_issueDate = client.getIssueDate().format(dateFormatter);
+                String p4_dueDate = client.getDueDate().format(dateFormatter);
+
+                // Intenta enviar el mensaje usando la plantilla
                 whatsAppGateway.sendMessage(
                         reminder.getClientWhatsappPhoneNumber(),
-                        reminder.getDescription()
+                        p1_clientName,
+                        p2_amount,
+                        p3_issueDate,
+                        p4_dueDate
                 );
 
-                // 2. SI Y SOLO SI el envío fue exitoso, actualizamos el estado a ENVIADO
-                System.out.println("--> [Scheduler] Envío exitoso para reminder " + reminder.getId() + ". Actualizando estado.");
+                // Si es exitoso, actualizamos el estado
+                System.out.println("--> [Scheduler] Envío real exitoso para reminder " + reminder.getId());
                 reminderService.updateReminderStatus(reminder.getId(), ResponseStatus.ENVIADO);
 
             } catch (Exception e) {
-                // 3. SI algo falló en el envío, actualizamos el estado a ERROR
+                // Si falla, actualizamos a ERROR
                 System.err.println("--> [Scheduler] Error al procesar reminder " + reminder.getId() + ": " + e.getMessage());
                 reminderService.updateReminderStatus(reminder.getId(), ResponseStatus.ERROR_DE_ENVIO);
             }
