@@ -38,4 +38,18 @@ public interface ClientService {
      * @return true si el formato es válido
      */
     public abstract boolean isValidPhone(String phone);
+    
+    /**
+     * Busca clientes por nombre, apellido o teléfono
+     * @param query término de búsqueda
+     * @return Lista de clientes que coinciden con la búsqueda
+     */
+    public abstract List<Client> searchClients(String query);
+    
+    /**
+     * Filtra clientes por la primera letra del nombre
+     * @param letter letra para filtrar
+     * @return Lista de clientes cuyo nombre empieza con la letra especificada
+     */
+    public abstract List<Client> filterClientsByLetter(String letter);
 }
