@@ -38,14 +38,20 @@ public class ReminderServiceImpl implements ReminderService {
                     .orElseThrow(() -> new EntityNotFoundException("Servicio con ID " + request.getServiceIdFilter() + " no encontrado."));
         }
 
+        // Validación: Asegura  que la fecha de programación no sea en el pasado.
+        if (request.getScheduledDate() == null || request.getScheduledDate().isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("La fecha de programación del recordatorio no puede ser nula o una fecha pasada.");
+        }
+
         Reminder reminder = Reminder.builder()
                 .reminderName(request.getReminderName())
                 .description(request.getDescription())
                 .debtorFilter(request.getDebtorFilter())
                 .serviceFilter(serviceFilter)
-                .daysUntilSend(request.getDaysUntilSend())
+                .relativeDays(request.getRelativeDays())
+                .scheduledDate(request.getScheduledDate())
                 .companyWhatsappNumber(request.getCompanyWhatsappNumber())
-                // Los campos createdAt, scheduledSendDate y status se asignan con @PrePersist
+                // El estado PENDING se asigna por defecto en la entidad
                 .build();
 
         return reminderRepository.save(reminder);
@@ -54,23 +60,30 @@ public class ReminderServiceImpl implements ReminderService {
     @Override
     @Transactional
     public List<WhatsAppMessageRequest> processPendingReminders() {
-        // 1. Busca recordatorios pendientes
-        List<Reminder> pendingReminders = reminderRepository.findByStatusAndScheduledSendDateLessThanEqual(
-                Reminder.ReminderStatus.PENDING, LocalDateTime.now()
+        // 1. Busca recordatorios programados para HOY que estén PENDIENTES
+        List<Reminder> scheduledReminders = reminderRepository.findByStatusAndScheduledDate(
+                Reminder.ReminderStatus.PENDING, LocalDate.now()
         );
 
         List<WhatsAppMessageRequest> allMessagesToSend = new ArrayList<>();
 
-        for (Reminder reminder : pendingReminders) {
+        for (Reminder reminder : scheduledReminders) {
             try {
                 // 2. Marca como procesando para evitar re-procesamiento en caso de ejecuciones concurrentes
                 reminder.setStatus(Reminder.ReminderStatus.PROCESSING);
                 reminderRepository.save(reminder);
 
-                // 3. Obtener los clientes según los filtros del recordatorio
-                List<ClientService> matchedContracts = clientServiceRepository.findActiveServicesForReminder(
-                        LocalDate.now(),
-                        reminder.getDebtorFilter(),
+                // 3. Calcula la fecha de vencimiento objetivo
+                LocalDate targetDueDate;
+                if (Boolean.TRUE.equals(reminder.getDebtorFilter())) {
+                    targetDueDate = LocalDate.now().minusDays(reminder.getRelativeDays());
+                } else {
+                    targetDueDate = LocalDate.now().plusDays(reminder.getRelativeDays());
+                }
+
+                // 4. Obtener los contratos usando la nueva consulta y la fecha objetivo
+                List<ClientService> matchedContracts = clientServiceRepository.findByDueDateAndOptionalService(
+                        targetDueDate,
                         reminder.getServiceFilter() != null ? reminder.getServiceFilter().getId() : null
                 );
 
@@ -81,7 +94,7 @@ public class ReminderServiceImpl implements ReminderService {
                     continue; // Pasa al siguiente reminder
                 }
 
-                // 4. Guarda los clientes seleccionados en el recordatorio y genera la lista de mensajes
+                // 5. Guarda los clientes seleccionados en el recordatorio y genera la lista de mensajes
                 List<Client> selectedClients = matchedContracts.stream()
                         .map(ClientService::getClient)
                         .distinct()
@@ -89,12 +102,12 @@ public class ReminderServiceImpl implements ReminderService {
 
                 reminder.setSelectedClients(selectedClients);
 
-                // 5. Prepara los datos para la API de WhatsApp
+                // 6. Prepara los datos para la API de WhatsApp
                 for (ClientService contract : matchedContracts) {
                     allMessagesToSend.add(mapToWhatsAppMessageRequest(contract, reminder));
                 }
 
-                // 6. Marca como completado
+                // 7. Marca como completado
                 reminder.setStatus(Reminder.ReminderStatus.COMPLETED);
                 reminderRepository.save(reminder);
 
