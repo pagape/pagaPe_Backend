@@ -24,12 +24,10 @@ public interface ClientServiceRepository extends JpaRepository< ClientService,Lo
             @Param("issueDate") LocalDate issueDate,
             @Param("dueDate") LocalDate dueDate);
 
-    @Query("SELECT cs FROM ClientService cs WHERE " +
-            "((:isDebtor = true AND cs.dueDate < :currentDate) OR (:isDebtor = false AND cs.dueDate >= :currentDate)) " +
+    @Query("SELECT cs FROM ClientService cs WHERE cs.dueDate = :targetDueDate " +
             "AND (:serviceId IS NULL OR cs.service.id = :serviceId) " +
             "AND cs.active = true")
-    List<ClientService> findActiveServicesForReminder(
-            @Param("currentDate") LocalDate currentDate,
-            @Param("isDebtor") boolean isDebtor,
+    List<ClientService> findByDueDateAndOptionalService(
+            @Param("targetDueDate") LocalDate targetDueDate,
             @Param("serviceId") Long serviceId);
 }
