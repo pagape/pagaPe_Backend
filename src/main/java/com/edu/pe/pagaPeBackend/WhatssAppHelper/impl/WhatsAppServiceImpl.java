@@ -20,7 +20,7 @@ public class WhatsAppServiceImpl implements WhatsAppService {
 
     private static final Logger log = LoggerFactory.getLogger(WhatsAppServiceImpl.class);
 
-    // URL desde application.properties.
+    // PURL de servicio externo envío de mensajes
     @Value("${whatsapp.api.url}")
     private String apiUrl;
 
@@ -28,28 +28,28 @@ public class WhatsAppServiceImpl implements WhatsAppService {
 
     @Override
     public void sendMessages(List<WhatsAppMessageRequest> messages) {
-        log.info("Preparando para enviar {} mensajes a la API de WhatsApp en la URL: {}", messages.size(), apiUrl);
+        if (messages == null || messages.isEmpty()) {
+            log.info("No hay mensajes para enviar a la API de WhatsApp.");
+            return;
+        }
 
-        // Cabeceras de la petición
+        log.info("Enviando un lote de {} mensajes al servicio externo en: {}", messages.size(), apiUrl);
+
+        // Cabeceras de la petición.
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        // AUTENTICACIÓN SI LA API LA REQUIERE
-        // headers.set("Authorization", "Bearer TU_API_KEY_DE_WHATSAPP");
+        // Si la el servicio requiere un token, añador acá :v.
+        // Ejemplo?: headers.set("Authorization", "Bearer ALGUN_TOKEN_INTERNO");
 
-        HttpEntity<List<WhatsAppMessageRequest>> request = new HttpEntity<>(messages, headers);
+        HttpEntity<List<WhatsAppMessageRequest>> requestEntity = new HttpEntity<>(messages, headers);
 
         try {
-            // Esqueleto de la llamada.
-            // Cuando tenga la API real, enviará los datos.
-            // restTemplate.postForEntity(apiUrl, request, String.class);
+            restTemplate.postForEntity(apiUrl, requestEntity, String.class);
 
-            // Por ahora, solo simularemos el envío con un log
-            log.info("SIMULACIÓN: Petición POST a {} enviada con éxito.", apiUrl);
-            log.info("SIMULACIÓN: Datos enviados: {}", request.getBody().toString());
+            log.info("Lote de mensajes enviado con éxito al servicio externo.");
 
         } catch (Exception e) {
-            log.error("Error al intentar enviar mensajes a la API de WhatsApp", e);
-            // Añadir lógica para reintentar el envío o notificar a un administrador
+            log.error("Error al enviar el lote de mensajes al servicio externo.", e);
         }
     }
 }
