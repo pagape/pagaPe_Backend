@@ -1,6 +1,7 @@
 package com.edu.pe.pagaPeBackend.reminder.model;
 
 import com.edu.pe.pagaPeBackend.manageClientService.model.Client;
+import com.edu.pe.pagaPeBackend.manageClientService.model.ClientService;
 import com.edu.pe.pagaPeBackend.manageClientService.model.Service;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -58,11 +59,11 @@ public class Reminder {
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-            name = "reminder_selected_clients",
+            name = "reminder_selected_contracts",
             joinColumns = @JoinColumn(name = "reminder_id"),
-            inverseJoinColumns = @JoinColumn(name = "client_id")
+            inverseJoinColumns = @JoinColumn(name = "client_service_id") // Apunta al ID del contrato
     )
-    private List<Client> selectedClients;
+    private List<ClientService> selectedContracts;
 
 
     public enum ReminderStatus {

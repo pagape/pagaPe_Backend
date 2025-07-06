@@ -3,6 +3,7 @@ package com.edu.pe.pagaPeBackend.reminder.dto;
 import com.edu.pe.pagaPeBackend.manageClientService.dto.Service.ServiceSimpleResponse;
 import com.edu.pe.pagaPeBackend.manageClientService.dto.client.ClientSimpleResponse;
 import com.edu.pe.pagaPeBackend.manageClientService.model.Client;
+import com.edu.pe.pagaPeBackend.manageClientService.model.ClientService;
 import com.edu.pe.pagaPeBackend.manageClientService.model.Service;
 import com.edu.pe.pagaPeBackend.reminder.model.Reminder;
 
@@ -12,13 +13,11 @@ import java.util.stream.Collectors;
 
 public class ReminderMapper {
 
-    // Convierte una entidad Reminder a un DTO de respuesta
     public static ReminderResponse toDTO(Reminder reminder) {
         if (reminder == null) {
             return null;
         }
 
-        // Mapea el filtro de servicio si existe
         ServiceSimpleResponse serviceDTO = null;
         if (reminder.getServiceFilter() != null) {
             Service service = reminder.getServiceFilter();
@@ -28,9 +27,11 @@ public class ReminderMapper {
                     .build();
         }
 
-        // Mapea la lista de clientes seleccionados si existe
-        List<ClientSimpleResponse> clientDTOs = reminder.getSelectedClients() != null
-                ? reminder.getSelectedClients().stream().map(ReminderMapper::toClientSimpleDTO).collect(Collectors.toList())
+        // Mapea la lista de CONTRATOS seleccionados
+        List<ClientServiceSimpleResponse> contractDTOs = reminder.getSelectedContracts() != null
+                ? reminder.getSelectedContracts().stream()
+                .map(ReminderMapper::toClientServiceSimpleDTO) // Usamos un nuevo helper
+                .collect(Collectors.toList())
                 : Collections.emptyList();
 
 
@@ -44,11 +45,21 @@ public class ReminderMapper {
                 .scheduledDate(reminder.getScheduledDate())
                 .status(reminder.getStatus())
                 .serviceFilter(serviceDTO)
-                .selectedClients(clientDTOs)
+                .selectedContracts(contractDTOs) // Usamos el campo y la lista corregidos
                 .build();
     }
 
-    // Pequeño helper para convertir un Client a su DTO simple
+    // Nuevo helper para convertir un ClientService a su DTO simple
+    private static ClientServiceSimpleResponse toClientServiceSimpleDTO(ClientService contract) {
+        return ClientServiceSimpleResponse.builder()
+                .id(contract.getId())
+                .amount(contract.getAmount())
+                .dueDate(contract.getDueDate())
+                .client(toClientSimpleDTO(contract.getClient())) // Reutilizamos el helper de cliente
+                .build();
+    }
+
+    // El helper para convertir un Client a su DTO simple se queda igual
     private static ClientSimpleResponse toClientSimpleDTO(Client client) {
         return ClientSimpleResponse.builder()
                 .id(client.getId())

@@ -1,5 +1,8 @@
 package com.edu.pe.pagaPeBackend.reminder.service.impl;
 
+import com.edu.pe.pagaPeBackend.conversationProcess.dto.ConversationRequest;
+import com.edu.pe.pagaPeBackend.conversationProcess.model.Conversation;
+import com.edu.pe.pagaPeBackend.conversationProcess.service.ConversationService;
 import com.edu.pe.pagaPeBackend.manageClientService.model.Client;
 import com.edu.pe.pagaPeBackend.manageClientService.model.ClientService;
 import com.edu.pe.pagaPeBackend.manageClientService.model.Service;
@@ -21,13 +24,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Component("ReminderServiceImpl") // Usando un nombre explícito para el bean
+@Component("ReminderServiceImpl")
 @RequiredArgsConstructor
 public class ReminderServiceImpl implements ReminderService {
 
     private final ReminderRepository reminderRepository;
     private final ClientServiceRepository clientServiceRepository;
     private final ServiceRepository serviceRepository;
+    private final ConversationService conversationService;
 
     @Override
     @Transactional
@@ -60,7 +64,6 @@ public class ReminderServiceImpl implements ReminderService {
     @Override
     @Transactional
     public List<WhatsAppMessageRequest> processPendingReminders() {
-        // 1. Busca recordatorios programados para HOY que estén PENDIENTES
         List<Reminder> scheduledReminders = reminderRepository.findByStatusAndScheduledDate(
                 Reminder.ReminderStatus.PENDING, LocalDate.now()
         );
@@ -69,59 +72,53 @@ public class ReminderServiceImpl implements ReminderService {
 
         for (Reminder reminder : scheduledReminders) {
             try {
-                // 2. Marca como procesando para evitar re-procesamiento en caso de ejecuciones concurrentes
                 reminder.setStatus(Reminder.ReminderStatus.PROCESSING);
                 reminderRepository.save(reminder);
 
-                // 3. Calcula la fecha de vencimiento objetivo
-                LocalDate targetDueDate;
-                if (Boolean.TRUE.equals(reminder.getDebtorFilter())) {
-                    targetDueDate = LocalDate.now().minusDays(reminder.getRelativeDays());
-                } else {
-                    targetDueDate = LocalDate.now().plusDays(reminder.getRelativeDays());
-                }
-
-                // 4. Obtener los contratos usando la nueva consulta y la fecha objetivo
                 List<ClientService> matchedContracts = clientServiceRepository.findByDueDateAndOptionalService(
-                        targetDueDate,
+                        calculateTargetDueDate(reminder),
                         reminder.getServiceFilter() != null ? reminder.getServiceFilter().getId() : null
                 );
 
-                // Si no hay contratos que coincidan, completa el reminder y continua
-                if(matchedContracts.isEmpty()){
+                if (matchedContracts.isEmpty()) {
                     reminder.setStatus(Reminder.ReminderStatus.COMPLETED);
                     reminderRepository.save(reminder);
-                    continue; // Pasa al siguiente reminder
+                    continue;
                 }
 
-                // 5. Guarda los clientes seleccionados en el recordatorio y genera la lista de mensajes
-                List<Client> selectedClients = matchedContracts.stream()
+                reminder.setSelectedContracts(matchedContracts);
+
+                List<Client> uniqueClients = matchedContracts.stream()
                         .map(ClientService::getClient)
                         .distinct()
                         .collect(Collectors.toList());
 
-                reminder.setSelectedClients(selectedClients);
+                for (Client client : uniqueClients) {
+                    ConversationRequest conversationRequest = new ConversationRequest();
+                    conversationRequest.setClientId(client.getId());
+                    conversationRequest.setReminderId(reminder.getId());
+                    conversationRequest.setStatus(Conversation.ConversationStatus.ABIERTA);
 
-                // 6. Prepara los datos para la API de WhatsApp
+                    conversationService.createConversation(conversationRequest);
+                }
+
+
                 for (ClientService contract : matchedContracts) {
                     allMessagesToSend.add(mapToWhatsAppMessageRequest(contract, reminder));
                 }
 
-                // 7. Marca como completado
                 reminder.setStatus(Reminder.ReminderStatus.COMPLETED);
                 reminderRepository.save(reminder);
 
             } catch (Exception e) {
-                // En caso de error, marca como fallido para revisión manual
                 reminder.setStatus(Reminder.ReminderStatus.FAILED);
                 reminderRepository.save(reminder);
-                // Aquí loggear el error: log.error("Error procesando reminder " + reminder.getId(), e);
+                // log.error("Error procesando reminder " + reminder.getId(), e);
             }
         }
         return allMessagesToSend;
     }
 
-    // Implementación de métodos adicionales
     @Override
     public List<Reminder> getAllReminders() {
         return reminderRepository.findAll();
@@ -133,19 +130,25 @@ public class ReminderServiceImpl implements ReminderService {
                 .orElseThrow(() -> new EntityNotFoundException("Reminder con ID " + id + " no encontrado."));
     }
 
-    // Helper para mapear los datos
+    private LocalDate calculateTargetDueDate(Reminder reminder) {
+        if (Boolean.TRUE.equals(reminder.getDebtorFilter())) {
+            return LocalDate.now().minusDays(reminder.getRelativeDays());
+        } else {
+            return LocalDate.now().plusDays(reminder.getRelativeDays());
+        }
+    }
+
     private WhatsAppMessageRequest mapToWhatsAppMessageRequest(ClientService contract, Reminder reminder) {
         Client client = contract.getClient();
 
-        // Lógica para determinar el tipo de mensaje
         String messageType = reminder.getDebtorFilter() ? "deuda" : "recordatorio";
 
         return WhatsAppMessageRequest.builder()
                 .nombre(client.getUserFirstName() + " " + client.getUserLastName())
                 .numero(client.getUserPhone())
                 .servicio(contract.getService().getNombreServicio())
-                .monto(String.format("%.2f", contract.getAmount())) // Formatea el BigDecimal a un String con 2 decimales
-                .fechaInicio(contract.getIssueDate().toString()) // Convierte LocalDate a String YYYY-MM-DD
+                .monto(String.format("%.2f", contract.getAmount()))
+                .fechaInicio(contract.getIssueDate().toString())
                 .fechaFin(contract.getDueDate().toString())
                 .tipo(messageType)
                 .build();
