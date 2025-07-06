@@ -1,7 +1,6 @@
 package com.edu.pe.pagaPeBackend.reminder.dto;
 
 import com.edu.pe.pagaPeBackend.manageClientService.dto.Service.ServiceSimpleResponse;
-import com.edu.pe.pagaPeBackend.manageClientService.dto.client.ClientSimpleResponse;
 import com.edu.pe.pagaPeBackend.reminder.model.Reminder;
 import lombok.Builder;
 import lombok.Data;
@@ -22,7 +21,6 @@ public class ReminderResponse {
     private String companyWhatsappNumber;
     private Reminder.ReminderStatus status;
 
-    // En lugar de los objetos completos, usamos nuestros DTOs simples
     private ServiceSimpleResponse serviceFilter;
-    private List<ClientSimpleResponse> selectedClients;
+    private List<ClientServiceSimpleResponse> selectedContracts;
 }

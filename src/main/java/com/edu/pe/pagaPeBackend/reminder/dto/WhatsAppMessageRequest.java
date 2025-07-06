@@ -8,7 +8,7 @@ import lombok.Data;
 @Builder
 public class WhatsAppMessageRequest {
 
-    // Usamos @JsonProperty para que el JSON final tenga exactamente los nombres que pides
+    // Usa @JsonProperty para que el JSON final tenga exactamente los nombres
     @JsonProperty("nombre")
     private String nombre;
 

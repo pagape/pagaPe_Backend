@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Component("ReminderServiceImpl") // Usando un nombre explícito para el bean
+@Component("ReminderServiceImpl")
 @RequiredArgsConstructor
 public class ReminderServiceImpl implements ReminderService {
 
@@ -94,13 +94,7 @@ public class ReminderServiceImpl implements ReminderService {
                     continue; // Pasa al siguiente reminder
                 }
 
-                // 5. Guarda los clientes seleccionados en el recordatorio y genera la lista de mensajes
-                List<Client> selectedClients = matchedContracts.stream()
-                        .map(ClientService::getClient)
-                        .distinct()
-                        .collect(Collectors.toList());
-
-                reminder.setSelectedClients(selectedClients);
+                reminder.setSelectedContracts(matchedContracts);
 
                 // 6. Prepara los datos para la API de WhatsApp
                 for (ClientService contract : matchedContracts) {
