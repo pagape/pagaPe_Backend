@@ -1,13 +1,17 @@
 package com.edu.pe.pagaPeBackend.reminder.dto;
 
+import lombok.Data;
 import lombok.Getter;
 
-@Getter
+import java.time.LocalDate;
+
+@Data
 public class ReminderRequest {
     private String reminderName;
     private String description;
     private Boolean debtorFilter;
-    private Long serviceIdFilter; // Solo necesita el ID del servicio, puede ser nulo
-    private Integer daysUntilSend;
+    private Long serviceIdFilter;
+    private Integer relativeDays;
+    private LocalDate scheduledDate;
     private String companyWhatsappNumber;
 }

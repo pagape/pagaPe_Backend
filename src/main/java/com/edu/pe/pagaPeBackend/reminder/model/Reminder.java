@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -42,26 +43,19 @@ public class Reminder {
     // --- Configuración de Envío ---
 
     @Column(nullable = false)
-    private Integer daysUntilSend; // 0 = hoy, 1 = mañana, etc.
+    private Integer relativeDays;
+
+    @Column(nullable = false)
+    private LocalDate scheduledDate;
 
     @Column(nullable = false)
     private String companyWhatsappNumber; // Número de la empresa que enviará el mensaje
 
-    // --- Campos de Estado y Auditoría ---
-
-    // Sugerencia: 'createdAt' es un nombre estándar para la fecha de registro.
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    // Sugerencia: 'scheduledSendDate' es más descriptivo para la fecha de envío calculada.
-    @Column(nullable = false)
-    private LocalDateTime scheduledSendDate;
-
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ReminderStatus status;
+    private ReminderStatus status = ReminderStatus.PENDING;
 
-    // Guardar los clientes que fueron seleccionados por este recordatorio
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "reminder_selected_clients",
@@ -72,17 +66,9 @@ public class Reminder {
 
 
     public enum ReminderStatus {
-        PENDING,   // Creado, esperando fecha de envío
-        PROCESSING, // En proceso de selección y envío
-        COMPLETED, // Proceso finalizado con éxito
-        FAILED     // Ocurrió un error
-    }
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.status = ReminderStatus.PENDING;
-        // Calculamos la fecha de envío al momento de crear
-        this.scheduledSendDate = this.createdAt.plusDays(this.daysUntilSend);
+        PENDING,
+        PROCESSING,
+        COMPLETED,
+        FAILED
     }
 }

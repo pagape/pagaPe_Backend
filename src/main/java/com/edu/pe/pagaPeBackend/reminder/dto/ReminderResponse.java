@@ -6,6 +6,7 @@ import com.edu.pe.pagaPeBackend.reminder.model.Reminder;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -16,10 +17,9 @@ public class ReminderResponse {
     private String reminderName;
     private String description;
     private Boolean debtorFilter;
-    private Integer daysUntilSend;
+    private Integer relativeDays;
+    private LocalDate scheduledDate;
     private String companyWhatsappNumber;
-    private LocalDateTime createdAt;
-    private LocalDateTime scheduledSendDate;
     private Reminder.ReminderStatus status;
 
     // En lugar de los objetos completos, usamos nuestros DTOs simples
