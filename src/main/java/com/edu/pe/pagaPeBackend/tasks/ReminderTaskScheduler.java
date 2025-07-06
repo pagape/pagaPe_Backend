@@ -20,7 +20,7 @@ public class ReminderTaskScheduler {
     private final ReminderService reminderService;
     private final WhatsAppService whatsAppService;
 
-    @Scheduled(cron = "0 0 8 * * ?", zone = "America/Lima")
+    @Scheduled(cron = "0 * * * * ?", zone = "America/Lima")
     public void runDailyReminderProcessing() {
         log.info("Iniciando tarea programada de procesamiento de recordatorios a las {}", LocalDateTime.now());
         try {
