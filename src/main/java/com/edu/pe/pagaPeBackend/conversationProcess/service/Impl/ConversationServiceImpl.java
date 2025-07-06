@@ -89,13 +89,22 @@ public class ConversationServiceImpl implements ConversationService {
 
 
     @Override
-    public void closeConversation(Long conversationId) {
+    public void closeConversation(Long conversationId,  CloseConversationRequest request) {
 
         Conversation conversation = conversationRepository.findById(conversationId)
                 .orElseThrow(() -> new RuntimeException("Conversation no encontrada"));
 
         conversation.setStatus(Conversation.ConversationStatus.CERRADA);
         conversation.setFinishAt(java.time.LocalDateTime.now());
+
+        if (request.getSentimentLabel() != null) {
+            conversation.setSentimentLabel(
+                    Conversation.SentimentLabel.valueOf(request.getSentimentLabel().toUpperCase())
+            );
+        }
+
+        conversation.setSentimentScore(request.getSentimentScore());
+
         conversationRepository.save(conversation);
 
     }

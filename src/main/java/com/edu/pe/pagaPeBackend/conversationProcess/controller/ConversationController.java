@@ -1,10 +1,7 @@
 package com.edu.pe.pagaPeBackend.conversationProcess.controller;
 
 
-import com.edu.pe.pagaPeBackend.conversationProcess.dto.ConversationRequest;
-import com.edu.pe.pagaPeBackend.conversationProcess.dto.ConversationResponse;
-import com.edu.pe.pagaPeBackend.conversationProcess.dto.MessageRequest;
-import com.edu.pe.pagaPeBackend.conversationProcess.dto.MessageResponse;
+import com.edu.pe.pagaPeBackend.conversationProcess.dto.*;
 import com.edu.pe.pagaPeBackend.conversationProcess.service.ConversationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -70,9 +67,12 @@ public class ConversationController {
      * PUT /conversations/{conversationId}/close
      */
     @PutMapping("/{conversationId}/close")
-    public ResponseEntity<Void> closeConversation(@PathVariable Long conversationId) {
+    public ResponseEntity<Void> closeConversation(
+            @PathVariable Long conversationId,
+            @RequestBody CloseConversationRequest request) {
 
-        conversationService.closeConversation(conversationId);
+        conversationService.closeConversation(conversationId, request);
         return ResponseEntity.ok().build();
     }
+
 }

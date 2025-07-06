@@ -18,7 +18,7 @@ public interface ConversationService {
     MessageResponse addMessageToConversation(Long conversationId, MessageRequest messageRequest);
 
 
-    void closeConversation(Long conversationId);
+    void closeConversation(Long conversationId,  CloseConversationRequest request);
 
 
 

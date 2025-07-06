@@ -54,8 +54,22 @@ public class Conversation {
     @Column(name = "finish_at")
     private LocalDateTime finishAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sentiment_label")
+    private SentimentLabel sentimentLabel;
+
+    @Column(name = "sentiment_score")
+    private Double sentimentScore;
+
     @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL)
     private List<Message> messages = new ArrayList<>();
+
+
+    public enum SentimentLabel {
+        POSITIVO,
+        NEGATIVO,
+        NEUTRAL
+    }
 
     public enum ConversationStatus {
         ABIERTA,
