@@ -115,6 +115,24 @@ public class UserController {
         }
     }
 
+    @GetMapping("/check/phone/{phone}")
+    public ResponseEntity<Map<String, Object>> checkPhoneExists(@PathVariable String phone) {
+        try {
+            boolean exists = userRepository.existsByUserPhone(phone);
+            Map<String, Object> response = new HashMap<>();
+            response.put("exists", exists);
+            response.put("phone", phone);
+            response.put("message", exists ? "Teléfono ya existe" : "Teléfono disponible");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("timestamp", java.time.LocalDateTime.now());
+            errorResponse.put("message", "Error al verificar teléfono: " + e.getMessage());
+            errorResponse.put("error", "Error del servidor");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
     @Transactional
     @PostMapping("/nameAndEmail")
     public ResponseEntity<UserDTO> getUserByDNI( @RequestBody User userRequest) {
@@ -313,6 +331,19 @@ public class UserController {
             }
         }
     }
+    
+    private void validatePhoneUpdate(String newPhone, Long userId) {
+        if (newPhone != null && !newPhone.isEmpty()) {
+            // Verificar si el teléfono ya existe en otro usuario
+            if (userRepository.existsByUserPhone(newPhone)) {
+                // Obtener el usuario actual para verificar si el teléfono es el mismo
+                User currentUser = userService.getUserById(userId);
+                if (currentUser == null || !newPhone.equals(currentUser.getUserPhone())) {
+                    throw new ValidationException("Ya existe un usuario con el teléfono " + newPhone);
+                }
+            }
+        }
+    }
 
     private void existsUserByUserId(Long userId) {
         if (userService.getUserById(userId) == null) {
@@ -332,6 +363,8 @@ public class UserController {
                 userToUpdate.setUserEmail(user.getUserEmail());
             }
             if (user.getUserPhone() != null && !user.getUserPhone().isEmpty() && !user.getUserPhone().equals(userToUpdate.getUserPhone())) {
+                // Validar que el teléfono no exista en otro usuario
+                validatePhoneUpdate(user.getUserPhone(), user.getId());
                 userToUpdate.setUserPhone(user.getUserPhone());
             }
             if (user.getUserDNI() != null && !user.getUserDNI().isEmpty() && !user.getUserDNI().equals(userToUpdate.getUserDNI())) {

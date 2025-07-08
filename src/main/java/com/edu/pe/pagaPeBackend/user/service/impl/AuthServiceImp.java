@@ -67,6 +67,9 @@ public class AuthServiceImp implements AuthService {
         //Validar que el DNI no exista
         existsUserByDNI(registerRequest);
         
+        //Validar que el teléfono no exista
+        existsUserByPhone(registerRequest);
+        
         //Aqui vamos a  validar rol antes de asignarlo
         validateRole(registerRequest.getRole());
         // Generar una clave privada y dirección Ethereum
@@ -253,6 +256,14 @@ public class AuthServiceImp implements AuthService {
         if (registerRequest.getUserDNI() != null && !registerRequest.getUserDNI().isEmpty()) {
             if (userRepository.existsByUserDNI(registerRequest.getUserDNI())) {
                 throw new ValidationException("Ya existe un usuario con el DNI " + registerRequest.getUserDNI());
+            }
+        }
+    }
+    
+    public void existsUserByPhone(RegisterRequest registerRequest) {
+        if (registerRequest.getUserPhone() != null && !registerRequest.getUserPhone().isEmpty()) {
+            if (userRepository.existsByUserPhone(registerRequest.getUserPhone())) {
+                throw new ValidationException("Ya existe un usuario con el teléfono " + registerRequest.getUserPhone());
             }
         }
     }

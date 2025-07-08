@@ -92,6 +92,12 @@ public class UserServiceImpl implements UserService {
             existingUser.setUserDNI(userRequest.getUserDNI());
         }
         if (userRequest.getUserPhone() != null && !userRequest.getUserPhone().isEmpty()) {
+            // Validar que el teléfono no exista en otro usuario
+            if (userRepository.existsByUserPhone(userRequest.getUserPhone())) {
+                if (!userRequest.getUserPhone().equals(existingUser.getUserPhone())) {
+                    throw new RuntimeException("Ya existe un usuario con el teléfono " + userRequest.getUserPhone());
+                }
+            }
             existingUser.setUserPhone(userRequest.getUserPhone());
         }
         if (userRequest.getImageData() != null && !userRequest.getImageData().isEmpty()) {
