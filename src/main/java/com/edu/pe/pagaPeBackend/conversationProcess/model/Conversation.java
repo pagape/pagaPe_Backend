@@ -58,14 +58,28 @@ public class Conversation {
     @Column(name = "sentiment_label")
     private SentimentLabel sentimentLabel;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status_finished")
+    private StatusFinish statusFinished;
+
     @Column(name = "sentiment_score")
     private Double sentimentScore;
+
 
     @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL)
     private List<Message> messages = new ArrayList<>();
 
 
     public enum SentimentLabel {
+        ENOJADO,
+        SATISFECHO,
+        COMPLETAMENTE_SATISFECHO,
+
+        INSATISFECHO
+
+    }
+
+    public enum StatusFinish {
         POSITIVO,
         NEGATIVO,
         NEUTRAL

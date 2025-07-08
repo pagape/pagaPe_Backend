@@ -47,6 +47,14 @@ public class ConversationController {
         return ResponseEntity.ok(response);
     }
 
+
+    @GetMapping
+    public ResponseEntity<List<ConversationResponse>> getAllConversations() {
+        List<ConversationResponse> list = conversationService.getAllConversations();
+        return ResponseEntity.ok(list);
+    }
+
+
     /**
      * Añadir mensaje a una conversación
      * POST /conversations/{conversationId}/messages
@@ -74,5 +82,16 @@ public class ConversationController {
         conversationService.closeConversation(conversationId, request);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/metrics/status-finish")
+    public ResponseEntity<ConversationMetricsResponse> getStatusFinishMetrics() {
+        return ResponseEntity.ok(conversationService.getStatusFinishMetrics());
+    }
+
+    @GetMapping("/metrics/sentiment")
+    public ResponseEntity<ConversationMetricsResponse> getSentimentMetrics() {
+        return ResponseEntity.ok(conversationService.getSentimentMetrics());
+    }
+
 
 }
