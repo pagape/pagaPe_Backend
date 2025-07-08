@@ -120,8 +120,15 @@ public class ConversationServiceImpl implements ConversationService {
     }
 
     @Override
-    public ConversationMetricsResponse getSentimentMetrics() {
-        List<Conversation> conversations = conversationRepository.findAll();
+    public ConversationMetricsResponse getSentimentMetrics(LocalDateTime startDate, LocalDateTime endDate) {
+        List<Conversation> conversations;
+
+        if (startDate != null && endDate != null) {
+            conversations = conversationRepository.findAllByFinishAtBetween(startDate, endDate);
+        } else {
+            conversations = conversationRepository.findAll();
+        }
+
 
         Map<String, Long> counts = conversations.stream()
                 .filter(c -> c.getSentimentLabel() != null)
@@ -151,8 +158,15 @@ public class ConversationServiceImpl implements ConversationService {
     }
 
     @Override
-    public ConversationMetricsResponse getStatusFinishMetrics() {
-        List<Conversation> conversations = conversationRepository.findAll();
+    public ConversationMetricsResponse getStatusFinishMetrics(LocalDateTime startDate, LocalDateTime endDate) {
+        List<Conversation> conversations;
+
+        if (startDate != null && endDate != null) {
+            conversations = conversationRepository.findAllByFinishAtBetween(startDate, endDate);
+        } else {
+            conversations = conversationRepository.findAll();
+        }
+
 
         Map<String, Long> counts = conversations.stream()
                 .filter(c -> c.getStatusFinished() != null)

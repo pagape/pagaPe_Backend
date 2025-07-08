@@ -4,10 +4,12 @@ package com.edu.pe.pagaPeBackend.conversationProcess.controller;
 import com.edu.pe.pagaPeBackend.conversationProcess.dto.*;
 import com.edu.pe.pagaPeBackend.conversationProcess.service.ConversationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -83,15 +85,25 @@ public class ConversationController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/metrics/status-finish")
-    public ResponseEntity<ConversationMetricsResponse> getStatusFinishMetrics() {
-        return ResponseEntity.ok(conversationService.getStatusFinishMetrics());
+    @PostMapping("/metrics/status-finish")
+    public ResponseEntity<ConversationMetricsResponse> getStatusFinishMetrics(
+            @RequestBody ConversationMetricsRequest filter){
+        return ResponseEntity.ok(conversationService.getStatusFinishMetrics(filter.getStartDate(), filter.getEndDate()));
     }
 
-    @GetMapping("/metrics/sentiment")
-    public ResponseEntity<ConversationMetricsResponse> getSentimentMetrics() {
-        return ResponseEntity.ok(conversationService.getSentimentMetrics());
+    @PostMapping("/metrics/sentiment")
+    public ResponseEntity<ConversationMetricsResponse> getSentimentMetrics(
+            @RequestBody ConversationMetricsRequest filter) {
+
+        ConversationMetricsResponse metrics =
+                conversationService.getSentimentMetrics(
+                        filter.getStartDate(),
+                        filter.getEndDate()
+                );
+
+        return ResponseEntity.ok(metrics);
     }
+
 
 
 }
