@@ -5,6 +5,7 @@ package com.edu.pe.pagaPeBackend.conversationProcess.service;
 import com.edu.pe.pagaPeBackend.conversationProcess.dto.*;
 import com.edu.pe.pagaPeBackend.conversationProcess.model.Conversation;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,9 +24,10 @@ public interface ConversationService {
 
     void closeConversation(Long conversationId,  CloseConversationRequest request);
 
-    ConversationMetricsResponse getSentimentMetrics();
+    ConversationMetricsResponse getSentimentMetrics(LocalDateTime startDate, LocalDateTime endDate);
 
-    ConversationMetricsResponse getStatusFinishMetrics();
+
+    ConversationMetricsResponse getStatusFinishMetrics(LocalDateTime startDate, LocalDateTime endDate);
 
 
 
