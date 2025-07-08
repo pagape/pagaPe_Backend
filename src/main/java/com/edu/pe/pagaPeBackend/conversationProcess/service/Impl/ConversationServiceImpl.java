@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -116,5 +117,61 @@ public class ConversationServiceImpl implements ConversationService {
 
         conversationRepository.save(conversation);
 
+    }
+
+    @Override
+    public ConversationMetricsResponse getSentimentMetrics() {
+        List<Conversation> conversations = conversationRepository.findAll();
+
+        Map<String, Long> counts = conversations.stream()
+                .filter(c -> c.getSentimentLabel() != null)
+                .collect(Collectors.groupingBy(
+                        c -> c.getSentimentLabel().name(),
+                        Collectors.counting()
+                ));
+
+        Long total = counts.values().stream().mapToLong(Long::longValue).sum();
+
+        Map<String, Double> percentages = counts.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        e -> total > 0
+                                ? (e.getValue() * 100.0) / total
+                                : 0.0
+                ));
+
+        return ConversationMetricsResponse.builder()
+                .totalConversations(total)
+                .distribution(counts)
+                .percentages(percentages)
+                .build();
+    }
+
+    @Override
+    public ConversationMetricsResponse getStatusFinishMetrics() {
+        List<Conversation> conversations = conversationRepository.findAll();
+
+        Map<String, Long> counts = conversations.stream()
+                .filter(c -> c.getStatusFinished() != null)
+                .collect(Collectors.groupingBy(
+                        c -> c.getStatusFinished().name(),
+                        Collectors.counting()
+                ));
+
+        Long total = counts.values().stream().mapToLong(Long::longValue).sum();
+
+        Map<String, Double> percentages = counts.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        e -> total > 0
+                                ? (e.getValue() * 100.0) / total
+                                : 0.0
+                ));
+
+        return ConversationMetricsResponse.builder()
+                .totalConversations(total)
+                .distribution(counts)
+                .percentages(percentages)
+                .build();
     }
 }

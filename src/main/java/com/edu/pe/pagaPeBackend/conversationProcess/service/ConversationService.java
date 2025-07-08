@@ -23,6 +23,12 @@ public interface ConversationService {
 
     void closeConversation(Long conversationId,  CloseConversationRequest request);
 
+    ConversationMetricsResponse getSentimentMetrics();
+
+    ConversationMetricsResponse getStatusFinishMetrics();
+
+
+
 
 
 

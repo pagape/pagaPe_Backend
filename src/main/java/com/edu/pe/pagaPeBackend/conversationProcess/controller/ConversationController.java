@@ -83,4 +83,15 @@ public class ConversationController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/metrics/status-finish")
+    public ResponseEntity<ConversationMetricsResponse> getStatusFinishMetrics() {
+        return ResponseEntity.ok(conversationService.getStatusFinishMetrics());
+    }
+
+    @GetMapping("/metrics/sentiment")
+    public ResponseEntity<ConversationMetricsResponse> getSentimentMetrics() {
+        return ResponseEntity.ok(conversationService.getSentimentMetrics());
+    }
+
+
 }
