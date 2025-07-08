@@ -129,6 +129,9 @@ public class ConversationServiceImpl implements ConversationService {
                         c -> c.getSentimentLabel().name(),
                         Collectors.counting()
                 ));
+        for (Conversation.SentimentLabel label : Conversation.SentimentLabel.values()) {
+            counts.putIfAbsent(label.name(), 0L);
+        }
 
         Long total = counts.values().stream().mapToLong(Long::longValue).sum();
 
@@ -157,6 +160,8 @@ public class ConversationServiceImpl implements ConversationService {
                         c -> c.getStatusFinished().name(),
                         Collectors.counting()
                 ));
+
+
 
         Long total = counts.values().stream().mapToLong(Long::longValue).sum();
 
