@@ -19,6 +19,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,6 +32,8 @@ import java.util.stream.Collectors;
 @Component("ReminderServiceImpl")
 @RequiredArgsConstructor
 public class ReminderServiceImpl implements ReminderService {
+
+    private static final Logger log = LoggerFactory.getLogger(ReminderServiceImpl.class);
 
     private final ReminderRepository reminderRepository;
     private final ClientServiceRepository clientServiceRepository;
@@ -119,9 +124,10 @@ public class ReminderServiceImpl implements ReminderService {
                 reminderRepository.save(reminder);
 
             } catch (Exception e) {
+                log.error("¡ERROR! Falló el procesamiento del Reminder ID: {}", reminder.getId(), e);
+
                 reminder.setStatus(Reminder.ReminderStatus.FAILED);
                 reminderRepository.save(reminder);
-                // log.error("Error procesando reminder " + reminder.getId(), e);
             }
         }
         return allMessagesToSend;
