@@ -21,7 +21,7 @@ public class WhatsAppServiceImpl implements WhatsAppService {
     private static final Logger log = LoggerFactory.getLogger(WhatsAppServiceImpl.class);
 
     // PURL de servicio externo envío de mensajes
-    @Value("${whatsapp.api.url}")
+    @Value("https://webhook-wsp-qqb5.onrender.com/enviar-mensajes")
     private String apiUrl;
 
     private final RestTemplate restTemplate = new RestTemplate();

@@ -24,7 +24,10 @@ public interface ClientServiceRepository extends JpaRepository< ClientService,Lo
             @Param("issueDate") LocalDate issueDate,
             @Param("dueDate") LocalDate dueDate);
 
-    @Query("SELECT cs FROM ClientService cs WHERE cs.dueDate = :targetDueDate " +
+    @Query("SELECT cs FROM ClientService cs " +
+            "JOIN FETCH cs.client c " +
+            "JOIN FETCH cs.service s " +
+            "WHERE cs.dueDate = :targetDueDate " +
             "AND (:serviceId IS NULL OR cs.service.id = :serviceId) " +
             "AND cs.active = true")
     List<ClientService> findByDueDateAndOptionalService(
