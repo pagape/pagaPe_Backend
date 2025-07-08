@@ -29,4 +29,7 @@ public class WhatsAppMessageRequest {
 
     @JsonProperty("tipo")
     private String tipo; // "deuda" o "recordatorio"
+
+    @JsonProperty("conversation_id")
+    private Long conversationId;
 }
