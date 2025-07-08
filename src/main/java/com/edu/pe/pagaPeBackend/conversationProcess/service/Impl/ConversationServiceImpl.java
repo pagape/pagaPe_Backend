@@ -67,6 +67,14 @@ public class ConversationServiceImpl implements ConversationService {
             return ConversationMapper.toResponse(conversation);
     }
 
+    @Override
+    public List<ConversationResponse> getAllConversations() {
+        List<Conversation> conversations = conversationRepository.findAll();
+        return conversations.stream()
+                .map(ConversationMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
 
     @Override
     public MessageResponse addMessageToConversation(Long conversationId, MessageRequest messageRequest) {
@@ -99,11 +107,12 @@ public class ConversationServiceImpl implements ConversationService {
 
         if (request.getSentimentLabel() != null) {
             conversation.setSentimentLabel(
-                    Conversation.SentimentLabel.valueOf(request.getSentimentLabel().toUpperCase())
+                  request.getSentimentLabel()
             );
         }
 
         conversation.setSentimentScore(request.getSentimentScore());
+        conversation.setStatusFinished(request.getStatusFinish());
 
         conversationRepository.save(conversation);
 

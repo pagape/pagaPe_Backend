@@ -15,6 +15,8 @@ public class ConversationMapper {
                 .id(entity.getId())
                 .status(entity.getStatus())
                 .clientId(entity.getClient().getId())
+                .clientName(entity.getClient().getUserFirstName())
+               .serviceName(entity.getReminder().getServiceFilter().getNombreServicio())
                 .reminderId(entity.getReminder().getId())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
@@ -24,6 +26,9 @@ public class ConversationMapper {
                         .map(MessageMapper::toResponse)
                         .collect(Collectors.toList())
                 )
+                .sentimentLabel(entity.getSentimentLabel())
+                .sentimentScore(entity.getSentimentScore())
+                .statusFinish(entity.getStatusFinished())
                 .build();
     }
 

@@ -14,6 +14,9 @@ public interface ConversationService {
 
     ConversationResponse getActiveConversationByPhoneNumber(String phoneNumber);
 
+    List<ConversationResponse> getAllConversations();
+
+
 
     MessageResponse addMessageToConversation(Long conversationId, MessageRequest messageRequest);
 

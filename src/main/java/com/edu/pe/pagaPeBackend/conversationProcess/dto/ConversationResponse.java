@@ -15,9 +15,14 @@ public class ConversationResponse {
     private Long id;
     private Conversation.ConversationStatus status;
     private Long clientId;  // id del cliente-servicio
+    private String clientName;
+    private String serviceName;
     private Long reminderId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime finishAt;
     private List<MessageResponse> messages;
+    private Conversation.SentimentLabel sentimentLabel;
+    private Conversation.StatusFinish statusFinish;
+    private Double sentimentScore;
 }

@@ -47,6 +47,14 @@ public class ConversationController {
         return ResponseEntity.ok(response);
     }
 
+
+    @GetMapping
+    public ResponseEntity<List<ConversationResponse>> getAllConversations() {
+        List<ConversationResponse> list = conversationService.getAllConversations();
+        return ResponseEntity.ok(list);
+    }
+
+
     /**
      * Añadir mensaje a una conversación
      * POST /conversations/{conversationId}/messages

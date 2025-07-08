@@ -1,5 +1,6 @@
 package com.edu.pe.pagaPeBackend.conversationProcess.dto;
 
+import com.edu.pe.pagaPeBackend.conversationProcess.model.Conversation;
 import lombok.*;
 
 @Data
@@ -7,7 +8,8 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class CloseConversationRequest {
-    private String sentimentLabel;
+    private Conversation.SentimentLabel sentimentLabel;
+    private Conversation.StatusFinish statusFinish;
     private Double sentimentScore;
 }
 
