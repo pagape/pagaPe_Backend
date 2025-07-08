@@ -29,6 +29,7 @@ public class ReminderTaskScheduler {
 
             // 2. Si hay mensajes para enviar, llama al servicio de WhatsApp
             if (messagesToSend != null && !messagesToSend.isEmpty()) {
+                log.info("Lista de mensajes generados: {}", messagesToSend);
                 log.info("Se generaron {} mensajes. Enviando a la API de WhatsApp...", messagesToSend.size());
                 whatsAppService.sendMessages(messagesToSend);
             } else {
