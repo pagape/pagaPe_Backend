@@ -24,7 +24,9 @@ import javax.sql.rowset.serial.SerialException;
 import java.io.IOException;
 import java.sql.Blob;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @CrossOrigin(origins = {"http://localhost:4200", "https://pagape-frontend.azurewebsites.net", "https://ambitious-water-0d42bc910.6.azurestaticapps.net/"})
@@ -75,6 +77,24 @@ public class UserController {
         // Mapear el usuario a DTO y devolver la respuesta
         UserDTO userDTO = UserMapper.fromUser(user);
         return ResponseEntity.ok(userDTO);
+    }
+
+    @GetMapping("/check/dni/{dni}")
+    public ResponseEntity<Map<String, Object>> checkDNIExists(@PathVariable String dni) {
+        try {
+            boolean exists = userService.checkDNIExists(dni);
+            Map<String, Object> response = new HashMap<>();
+            response.put("exists", exists);
+            response.put("dni", dni);
+            response.put("message", exists ? "DNI ya existe" : "DNI disponible");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("timestamp", java.time.LocalDateTime.now());
+            errorResponse.put("message", "Error al verificar DNI: " + e.getMessage());
+            errorResponse.put("error", "Error del servidor");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
     }
 
     @Transactional
@@ -262,6 +282,19 @@ public class UserController {
             throw new ResourceNotFoundException("No existe un usuario con el email " + email);
         }
     }
+    
+    private void validateDNIUpdate(String newDNI, Long userId) {
+        if (newDNI != null && !newDNI.isEmpty()) {
+            // Verificar si el DNI ya existe en otro usuario
+            if (userRepository.existsByUserDNI(newDNI)) {
+                // Obtener el usuario actual para verificar si el DNI es el mismo
+                User currentUser = userService.getUserById(userId);
+                if (currentUser == null || !newDNI.equals(currentUser.getUserDNI())) {
+                    throw new ValidationException("Ya existe un usuario con el DNI " + newDNI);
+                }
+            }
+        }
+    }
 
     private void existsUserByUserId(Long userId) {
         if (userService.getUserById(userId) == null) {
@@ -282,6 +315,11 @@ public class UserController {
             }
             if (user.getUserPhone() != null && !user.getUserPhone().isEmpty() && !user.getUserPhone().equals(userToUpdate.getUserPhone())) {
                 userToUpdate.setUserPhone(user.getUserPhone());
+            }
+            if (user.getUserDNI() != null && !user.getUserDNI().isEmpty() && !user.getUserDNI().equals(userToUpdate.getUserDNI())) {
+                // Validar que el DNI no exista en otro usuario
+                validateDNIUpdate(user.getUserDNI(), user.getId());
+                userToUpdate.setUserDNI(user.getUserDNI());
             }
             if (user.getImageData() != null && !user.getImageData().isEmpty() && !user.getImageData().equals(userToUpdate.getImageData())) {
                 userToUpdate.setImageData(user.getImageData());
