@@ -1,6 +1,7 @@
 package com.edu.pe.pagaPeBackend.reminder.service.impl;
 
 import com.edu.pe.pagaPeBackend.conversationProcess.dto.ConversationRequest;
+import com.edu.pe.pagaPeBackend.conversationProcess.dto.ConversationResponse;
 import com.edu.pe.pagaPeBackend.conversationProcess.model.Conversation;
 import com.edu.pe.pagaPeBackend.conversationProcess.service.ConversationService;
 import com.edu.pe.pagaPeBackend.manageClientService.model.Client;
@@ -9,19 +10,20 @@ import com.edu.pe.pagaPeBackend.manageClientService.model.Service;
 import com.edu.pe.pagaPeBackend.manageClientService.repository.ClientServiceRepository;
 import com.edu.pe.pagaPeBackend.manageClientService.repository.ServiceRepository;
 import com.edu.pe.pagaPeBackend.reminder.dto.ReminderRequest;
-import com.edu.pe.pagaPeBackend.reminder.model.Reminder;
 import com.edu.pe.pagaPeBackend.reminder.dto.WhatsAppMessageRequest;
+import com.edu.pe.pagaPeBackend.reminder.model.Reminder;
 import com.edu.pe.pagaPeBackend.reminder.repository.ReminderRepository;
 import com.edu.pe.pagaPeBackend.reminder.service.ReminderService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component("ReminderServiceImpl")
@@ -33,6 +35,7 @@ public class ReminderServiceImpl implements ReminderService {
     private final ServiceRepository serviceRepository;
     private final ConversationService conversationService;
 
+
     @Override
     @Transactional
     public Reminder createReminder(ReminderRequest request) {
@@ -42,7 +45,6 @@ public class ReminderServiceImpl implements ReminderService {
                     .orElseThrow(() -> new EntityNotFoundException("Servicio con ID " + request.getServiceIdFilter() + " no encontrado."));
         }
 
-        // Validación: Asegura  que la fecha de programación no sea en el pasado.
         if (request.getScheduledDate() == null || request.getScheduledDate().isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("La fecha de programación del recordatorio no puede ser nula o una fecha pasada.");
         }
@@ -55,11 +57,11 @@ public class ReminderServiceImpl implements ReminderService {
                 .relativeDays(request.getRelativeDays())
                 .scheduledDate(request.getScheduledDate())
                 .companyWhatsappNumber(request.getCompanyWhatsappNumber())
-                // El estado PENDING se asigna por defecto en la entidad
                 .build();
 
         return reminderRepository.save(reminder);
     }
+
 
     @Override
     @Transactional
@@ -93,18 +95,24 @@ public class ReminderServiceImpl implements ReminderService {
                         .distinct()
                         .collect(Collectors.toList());
 
-                for (Client client : uniqueClients) {
-                    ConversationRequest conversationRequest = new ConversationRequest();
-                    conversationRequest.setClientId(client.getId());
-                    conversationRequest.setReminderId(reminder.getId());
-                    conversationRequest.setStatus(Conversation.ConversationStatus.ABIERTA);
+                Map<Long, Long> clientConversationMap = new HashMap<>();
 
-                    conversationService.createConversation(conversationRequest);
+                for (Client client : uniqueClients) {
+                    ConversationRequest conversationRequest = ConversationRequest.builder()
+                            .clientId(client.getId())
+                            .reminderId(reminder.getId())
+                            .status(Conversation.ConversationStatus.ABIERTA)
+                            .build();
+
+                    ConversationResponse createdConversation = conversationService.createConversation(conversationRequest);
+
+                    clientConversationMap.put(client.getId(), createdConversation.getId());
                 }
 
 
                 for (ClientService contract : matchedContracts) {
-                    allMessagesToSend.add(mapToWhatsAppMessageRequest(contract, reminder));
+                    Long conversationId = clientConversationMap.get(contract.getClient().getId());
+                    allMessagesToSend.add(mapToWhatsAppMessageRequest(contract, reminder, conversationId));
                 }
 
                 reminder.setStatus(Reminder.ReminderStatus.COMPLETED);
@@ -131,6 +139,7 @@ public class ReminderServiceImpl implements ReminderService {
     }
 
     private LocalDate calculateTargetDueDate(Reminder reminder) {
+        // La lógica de cálculo con LocalDate.now() se mantiene, como pediste.
         if (Boolean.TRUE.equals(reminder.getDebtorFilter())) {
             return LocalDate.now().minusDays(reminder.getRelativeDays());
         } else {
@@ -138,10 +147,9 @@ public class ReminderServiceImpl implements ReminderService {
         }
     }
 
-    private WhatsAppMessageRequest mapToWhatsAppMessageRequest(ClientService contract, Reminder reminder) {
+    private WhatsAppMessageRequest mapToWhatsAppMessageRequest(ClientService contract, Reminder reminder, Long conversationId) {
         Client client = contract.getClient();
-
-        String messageType = reminder.getDebtorFilter() ? "deuda" : "recordatorio";
+        String messageType = Boolean.TRUE.equals(reminder.getDebtorFilter()) ? "deuda" : "recordatorio";
 
         return WhatsAppMessageRequest.builder()
                 .nombre(client.getUserFirstName() + " " + client.getUserLastName())
@@ -151,6 +159,7 @@ public class ReminderServiceImpl implements ReminderService {
                 .fechaInicio(contract.getIssueDate().toString())
                 .fechaFin(contract.getDueDate().toString())
                 .tipo(messageType)
+                .conversationId(conversationId) // <-- Aquí se asigna el ID
                 .build();
     }
 }

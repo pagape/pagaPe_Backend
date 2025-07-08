@@ -19,6 +19,11 @@ public class ConversationMapper {
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .finishAt(entity.getFinishAt())
+                .messages(         entity.getMessages()
+                        .stream()
+                        .map(MessageMapper::toResponse)
+                        .collect(Collectors.toList())
+                )
                 .build();
     }
 

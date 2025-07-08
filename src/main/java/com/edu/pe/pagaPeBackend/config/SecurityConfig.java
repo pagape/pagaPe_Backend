@@ -26,7 +26,7 @@ public class SecurityConfig {
         http.cors().configurationSource(corsConfigurationSource()).and()
                 .authorizeHttpRequests(authorize -> authorize
                         // Endpoints públicos
-                        .requestMatchers("/api/pagaPe/v1/auth/**","/api/pagaPe/v1/auth/login","/api/pagaPe/v1/users/nameAndEmail","/api/excel/**","/api/ai-training/**","/api/conversations")
+                        .requestMatchers("/api/pagaPe/v1/auth/**","/api/pagaPe/v1/auth/login","/api/pagaPe/v1/users/nameAndEmail","/api/excel/**","/api/ai-training/**","/api/conversations/**","api/services")
                                 .permitAll()
                         // Swagger UI y OpenAPI
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**")

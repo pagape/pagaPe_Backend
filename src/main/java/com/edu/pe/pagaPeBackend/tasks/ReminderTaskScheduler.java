@@ -20,7 +20,7 @@ public class ReminderTaskScheduler {
     private final ReminderService reminderService;
     private final WhatsAppService whatsAppService;
 
-    @Scheduled(cron = "0 0 8 * * ?", zone = "America/Lima")
+    @Scheduled(cron = "0 * * * * ?", zone = "America/Lima")
     public void runDailyReminderProcessing() {
         log.info("Iniciando tarea programada de procesamiento de recordatorios a las {}", LocalDateTime.now());
         try {
@@ -29,6 +29,7 @@ public class ReminderTaskScheduler {
 
             // 2. Si hay mensajes para enviar, llama al servicio de WhatsApp
             if (messagesToSend != null && !messagesToSend.isEmpty()) {
+                log.info("Lista de mensajes generados: {}", messagesToSend);
                 log.info("Se generaron {} mensajes. Enviando a la API de WhatsApp...", messagesToSend.size());
                 whatsAppService.sendMessages(messagesToSend);
             } else {
