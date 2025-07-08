@@ -246,23 +246,29 @@ public class AuthServiceImp implements AuthService {
             throw new ValidationException("La contraseña del usuario no debe exceder los 100 caracteres");
         }
     }
+    private boolean isValidValue(String value) {
+        return value != null && !value.trim().isEmpty();
+    }
+    
     public void existsUserByEmail(RegisterRequest registerRequest) {
-        if (userRepository.existsByUserEmail(registerRequest.getUserEmail())) {
-            throw new ValidationException("Ya existe un usuario con el email " + registerRequest.getUserEmail());
+        if (isValidValue(registerRequest.getUserEmail())) {
+            if (userRepository.existsByUserEmail(registerRequest.getUserEmail().trim())) {
+                throw new ValidationException("Ya existe un usuario con el email " + registerRequest.getUserEmail());
+            }
         }
     }
     
     public void existsUserByDNI(RegisterRequest registerRequest) {
-        if (registerRequest.getUserDNI() != null && !registerRequest.getUserDNI().isEmpty()) {
-            if (userRepository.existsByUserDNI(registerRequest.getUserDNI())) {
+        if (isValidValue(registerRequest.getUserDNI())) {
+            if (userRepository.existsByUserDNI(registerRequest.getUserDNI().trim())) {
                 throw new ValidationException("Ya existe un usuario con el DNI " + registerRequest.getUserDNI());
             }
         }
     }
     
     public void existsUserByPhone(RegisterRequest registerRequest) {
-        if (registerRequest.getUserPhone() != null && !registerRequest.getUserPhone().isEmpty()) {
-            if (userRepository.existsByUserPhone(registerRequest.getUserPhone())) {
+        if (isValidValue(registerRequest.getUserPhone())) {
+            if (userRepository.existsByUserPhone(registerRequest.getUserPhone().trim())) {
                 throw new ValidationException("Ya existe un usuario con el teléfono " + registerRequest.getUserPhone());
             }
         }

@@ -82,23 +82,23 @@ public class UserServiceImpl implements UserService {
         if (userRequest.getUserEmail() != null && !userRequest.getUserEmail().isEmpty()) {
             existingUser.setUserEmail(userRequest.getUserEmail());
         }
-        if (userRequest.getUserDNI() != null && !userRequest.getUserDNI().isEmpty()) {
+        if (userRequest.getUserDNI() != null && !userRequest.getUserDNI().trim().isEmpty()) {
             // Validar que el DNI no exista en otro usuario
-            if (userRepository.existsByUserDNI(userRequest.getUserDNI())) {
-                if (!userRequest.getUserDNI().equals(existingUser.getUserDNI())) {
+            if (userRepository.existsByUserDNI(userRequest.getUserDNI().trim())) {
+                if (!userRequest.getUserDNI().trim().equals(existingUser.getUserDNI())) {
                     throw new RuntimeException("Ya existe un usuario con el DNI " + userRequest.getUserDNI());
                 }
             }
-            existingUser.setUserDNI(userRequest.getUserDNI());
+            existingUser.setUserDNI(userRequest.getUserDNI().trim());
         }
-        if (userRequest.getUserPhone() != null && !userRequest.getUserPhone().isEmpty()) {
+        if (userRequest.getUserPhone() != null && !userRequest.getUserPhone().trim().isEmpty()) {
             // Validar que el teléfono no exista en otro usuario
-            if (userRepository.existsByUserPhone(userRequest.getUserPhone())) {
-                if (!userRequest.getUserPhone().equals(existingUser.getUserPhone())) {
+            if (userRepository.existsByUserPhone(userRequest.getUserPhone().trim())) {
+                if (!userRequest.getUserPhone().trim().equals(existingUser.getUserPhone())) {
                     throw new RuntimeException("Ya existe un usuario con el teléfono " + userRequest.getUserPhone());
                 }
             }
-            existingUser.setUserPhone(userRequest.getUserPhone());
+            existingUser.setUserPhone(userRequest.getUserPhone().trim());
         }
         if (userRequest.getImageData() != null && !userRequest.getImageData().isEmpty()) {
             existingUser.setImageData(userRequest.getImageData());

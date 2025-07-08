@@ -133,6 +133,46 @@ public class UserController {
         }
     }
 
+    // Endpoint temporal de debug - REMOVER después de solucionar el problema
+    @GetMapping("/debug/validation")
+    public ResponseEntity<Map<String, Object>> debugValidation(
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String dni,
+            @RequestParam(required = false) String phone) {
+        try {
+            Map<String, Object> response = new HashMap<>();
+            
+            if (email != null) {
+                response.put("email_raw", email);
+                response.put("email_trimmed", email.trim());
+                response.put("email_exists", userRepository.existsByUserEmail(email));
+                response.put("email_exists_trimmed", userRepository.existsByUserEmail(email.trim()));
+            }
+            
+            if (dni != null) {
+                response.put("dni_raw", dni);
+                response.put("dni_trimmed", dni.trim());
+                response.put("dni_exists", userRepository.existsByUserDNI(dni));
+                response.put("dni_exists_trimmed", userRepository.existsByUserDNI(dni.trim()));
+            }
+            
+            if (phone != null) {
+                response.put("phone_raw", phone);
+                response.put("phone_trimmed", phone.trim());
+                response.put("phone_exists", userRepository.existsByUserPhone(phone));
+                response.put("phone_exists_trimmed", userRepository.existsByUserPhone(phone.trim()));
+            }
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("timestamp", java.time.LocalDateTime.now());
+            errorResponse.put("message", "Error en debug: " + e.getMessage());
+            errorResponse.put("error", "Error del servidor");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
     @Transactional
     @PostMapping("/nameAndEmail")
     public ResponseEntity<UserDTO> getUserByDNI( @RequestBody User userRequest) {
@@ -319,13 +359,17 @@ public class UserController {
         }
     }
     
+    private boolean isValidValue(String value) {
+        return value != null && !value.trim().isEmpty();
+    }
+    
     private void validateDNIUpdate(String newDNI, Long userId) {
-        if (newDNI != null && !newDNI.isEmpty()) {
+        if (isValidValue(newDNI)) {
             // Verificar si el DNI ya existe en otro usuario
-            if (userRepository.existsByUserDNI(newDNI)) {
+            if (userRepository.existsByUserDNI(newDNI.trim())) {
                 // Obtener el usuario actual para verificar si el DNI es el mismo
                 User currentUser = userService.getUserById(userId);
-                if (currentUser == null || !newDNI.equals(currentUser.getUserDNI())) {
+                if (currentUser == null || !newDNI.trim().equals(currentUser.getUserDNI())) {
                     throw new ValidationException("Ya existe un usuario con el DNI " + newDNI);
                 }
             }
@@ -333,12 +377,12 @@ public class UserController {
     }
     
     private void validatePhoneUpdate(String newPhone, Long userId) {
-        if (newPhone != null && !newPhone.isEmpty()) {
+        if (isValidValue(newPhone)) {
             // Verificar si el teléfono ya existe en otro usuario
-            if (userRepository.existsByUserPhone(newPhone)) {
+            if (userRepository.existsByUserPhone(newPhone.trim())) {
                 // Obtener el usuario actual para verificar si el teléfono es el mismo
                 User currentUser = userService.getUserById(userId);
-                if (currentUser == null || !newPhone.equals(currentUser.getUserPhone())) {
+                if (currentUser == null || !newPhone.trim().equals(currentUser.getUserPhone())) {
                     throw new ValidationException("Ya existe un usuario con el teléfono " + newPhone);
                 }
             }
