@@ -33,4 +33,15 @@ public interface ClientServiceRepository extends JpaRepository< ClientService,Lo
     List<ClientService> findByDueDateAndOptionalService(
             @Param("targetDueDate") LocalDate targetDueDate,
             @Param("serviceId") Long serviceId);
+
+    @Query("SELECT cs FROM ClientService cs " +
+            "JOIN FETCH cs.client c " +
+            "JOIN FETCH cs.service s " +
+            "WHERE cs.dueDate BETWEEN :startDate AND :endDate " + // La clave es usar BETWEEN
+            "AND (:serviceId IS NULL OR cs.service.id = :serviceId) " +
+            "AND cs.active = true")
+    List<ClientService> findByDueDateRangeAndOptionalService(
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("serviceId") Long serviceId);
 }

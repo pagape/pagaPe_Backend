@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface ReminderRepository extends JpaRepository<Reminder, Long> {
 
-    List<Reminder> findByStatusAndScheduledDateLessThanEqual(Reminder.ReminderStatus status, LocalDateTime now);
+    List<Reminder> findByStatusAndScheduledDateLessThanEqual(Reminder.ReminderStatus status, LocalDate now);
     List<Reminder> findByStatusAndScheduledDate(Reminder.ReminderStatus status, LocalDate date);
 
 }
