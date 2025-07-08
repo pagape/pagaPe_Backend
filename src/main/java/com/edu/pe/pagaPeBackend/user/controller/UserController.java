@@ -97,6 +97,24 @@ public class UserController {
         }
     }
 
+    @GetMapping("/check/email/{email}")
+    public ResponseEntity<Map<String, Object>> checkEmailExists(@PathVariable String email) {
+        try {
+            boolean exists = userRepository.existsByUserEmail(email);
+            Map<String, Object> response = new HashMap<>();
+            response.put("exists", exists);
+            response.put("email", email);
+            response.put("message", exists ? "Email ya existe" : "Email disponible");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("timestamp", java.time.LocalDateTime.now());
+            errorResponse.put("message", "Error al verificar email: " + e.getMessage());
+            errorResponse.put("error", "Error del servidor");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
     @Transactional
     @PostMapping("/nameAndEmail")
     public ResponseEntity<UserDTO> getUserByDNI( @RequestBody User userRequest) {
