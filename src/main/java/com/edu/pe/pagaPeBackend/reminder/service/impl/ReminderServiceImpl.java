@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -71,7 +72,9 @@ public class ReminderServiceImpl implements ReminderService {
     @Override
     @Transactional
     public List<WhatsAppMessageRequest> processPendingReminders() {
-        List<Reminder> scheduledReminders = reminderRepository.findByStatusAndScheduledDate(
+        // Busca recordatorios programados para hoy que estén PENDIENTES.
+        // Usaremos findByStatusAndScheduledDateLessThanEqual para procesar también los que se quedaron de días anteriores.
+        List<Reminder> scheduledReminders = reminderRepository.findByStatusAndScheduledDateLessThanEqual(
                 Reminder.ReminderStatus.PENDING, LocalDate.now()
         );
 
@@ -82,38 +85,51 @@ public class ReminderServiceImpl implements ReminderService {
                 reminder.setStatus(Reminder.ReminderStatus.PROCESSING);
                 reminderRepository.save(reminder);
 
-                List<ClientService> matchedContracts = clientServiceRepository.findByDueDateAndOptionalService(
-                        calculateTargetDueDate(reminder),
+                LocalDate startDate;
+                LocalDate endDate;
+                LocalDate scheduledDate = reminder.getScheduledDate(); // Usamos la fecha programada como base
+
+                if (Boolean.TRUE.equals(reminder.getDebtorFilter())) {
+                    // Caso DEUDORES: el rango es hacia el PASADO
+                    // Busca desde 'hace X días' hasta la fecha programada.
+                    endDate = scheduledDate;
+                    startDate = scheduledDate.minusDays(reminder.getRelativeDays());
+                } else {
+                    // Caso NO DEUDORES (Recordatorios): el rango es hacia el FUTURO
+                    // Busca desde la fecha programada hasta 'en X días'.
+                    startDate = scheduledDate;
+                    endDate = scheduledDate.plusDays(reminder.getRelativeDays());
+                }
+
+                log.info("Buscando contratos para Reminder ID: {}. Rango de dueDate: [{} - {}]",
+                        reminder.getId(), startDate, endDate);
+
+                List<ClientService> matchedContracts = clientServiceRepository.findByDueDateRangeAndOptionalService(
+                        startDate,
+                        endDate,
                         reminder.getServiceFilter() != null ? reminder.getServiceFilter().getId() : null
                 );
 
                 if (matchedContracts.isEmpty()) {
                     reminder.setStatus(Reminder.ReminderStatus.COMPLETED);
                     reminderRepository.save(reminder);
+                    log.info("No se encontraron contratos para Reminder ID: {}", reminder.getId());
                     continue;
                 }
 
                 reminder.setSelectedContracts(matchedContracts);
 
                 List<Client> uniqueClients = matchedContracts.stream()
-                        .map(ClientService::getClient)
-                        .distinct()
-                        .collect(Collectors.toList());
+                        .map(ClientService::getClient).distinct().collect(Collectors.toList());
 
                 Map<Long, Long> clientConversationMap = new HashMap<>();
-
                 for (Client client : uniqueClients) {
                     ConversationRequest conversationRequest = ConversationRequest.builder()
-                            .clientId(client.getId())
-                            .reminderId(reminder.getId())
-                            .status(Conversation.ConversationStatus.ABIERTA)
-                            .build();
-
+                            .clientId(client.getId()).reminderId(reminder.getId())
+                            .status(Conversation.ConversationStatus.ABIERTA).build();
                     ConversationResponse createdConversation = conversationService.createConversation(conversationRequest);
-
                     clientConversationMap.put(client.getId(), createdConversation.getId());
                 }
-
 
                 for (ClientService contract : matchedContracts) {
                     Long conversationId = clientConversationMap.get(contract.getClient().getId());
@@ -125,7 +141,6 @@ public class ReminderServiceImpl implements ReminderService {
 
             } catch (Exception e) {
                 log.error("¡ERROR! Falló el procesamiento del Reminder ID: {}", reminder.getId(), e);
-
                 reminder.setStatus(Reminder.ReminderStatus.FAILED);
                 reminderRepository.save(reminder);
             }
